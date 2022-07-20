@@ -5,15 +5,26 @@ import random
 import math
 
 class Point:
-    def __init__(self, T):		
+    def __init__(self, n, T):
+        self.n = n
         self.T = T
-        self.X = self.calc_X(T) 
+        self.X = self.calc_X() 
         self.Y = self.calc_Y(T)
     
-    def calc_X(self, t):
+    def calc_X(self):
         # requires implememtation
-        t = k(0, 1)        
-        return t
+        # t = k(0, 1)
+        digits = list(self.T)
+        for digit in digits:
+            print(digit, end='') 
+        print('')
+        # better to cycle through digits in a range
+        for i in range(self.n):
+            if i % 2 == 0:
+                print(i)
+                # print(digits[i])
+        print('')
+        return 1
 
     def calc_Y(self, t):
         # requires implememtation
@@ -44,7 +55,7 @@ def is_power_of_three(n):
     return n == 1
 
 def main():
-    delay = .25
+    delay = .25 / 5
     welcome = 'P E A N O for 🐍s & 👧s'
     os.system('clear')
     for i in range(9):
@@ -82,11 +93,11 @@ def main():
     print('Length :', length)
 
     points = []
-    for i in range(number_of_points):
-        T = base(i, 3)
+    for n in range(number_of_points):
+        T = base(n, 3)
         T = T.rjust(length, '0')      # pad zeros start
         T = T.ljust(length * 2, '0')  # pad zeros end
-        point = Point(T);
+        point = Point(n, T);
         points.append(point)
 
     # print('Calculating points ...')
@@ -96,7 +107,7 @@ def main():
     print('')
     for point in points:
         #  os.system('clear')
-        print('.', point.T, ' -------> (', point.X, ',', point.Y, ')')
+        print(point.n, '    .', point.T, ' -------> (', point.X, ',', point.Y, ')')
         sleep(delay)
     print('')
 
