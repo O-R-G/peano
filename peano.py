@@ -47,12 +47,11 @@ def main():
     delay = .25
     welcome = 'P E A N O for 🐍s & 👧s'
     os.system('clear')
-    for i in range(3):
+    for i in range(9):
         os.system('clear')
         print(welcome)
         print('\n' + (' ' * 36) + ('. ' * (i%3)) + 'O ' + ('. ' * (2 - i%3)))
         sleep(delay)
-    sleep(delay*5)
     os.system('clear')
     sleep(delay)
 
