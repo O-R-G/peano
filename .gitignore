@@ -1,0 +1,30 @@
+# machine-specific config files
+.htaccess
+.htpasswd
+
+# nano, emacs backups
+*~
+
+# media
+*.gif
+*.jpg
+*.jpeg
+*.png
+*.pdf
+*.svg
+*.tif
+*.tiff
+*.mp4
+*.mov
+
+# macos
+.DS_Store
+
+# bash
+backup
+sync
+log
+
+# php composer
+static/php/vendor
+
