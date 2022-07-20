@@ -44,15 +44,15 @@ def is_power_of_three(n):
     return n == 1
 
 def main():
-    # delay = .25
-    delay = .001
-    welcome = 'P E A N O for pythons and edens'
+    delay = .25
+    welcome = 'P E A N O for 🐍s & 👧s'
     os.system('clear')
     for i in range(3):
         os.system('clear')
         print(welcome)
         print('\n' + (' ' * 36) + ('. ' * (i%3)) + 'O ' + ('. ' * (2 - i%3)))
         sleep(delay)
+    sleep(delay*5)
     os.system('clear')
     sleep(delay)
 
@@ -98,7 +98,7 @@ def main():
     for point in points:
         #  os.system('clear')
         print('.', point.T, ' -------> (', point.X, ',', point.Y, ')')
-        sleep(delay*100)
+        sleep(delay)
     print('')
 
 main()
