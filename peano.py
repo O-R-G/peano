@@ -18,7 +18,7 @@ class Point:
     # Y = 0 . c[0]c[1]c[2]...
     # b[n] = k ^ (a[1] + a[3] ... a[2*n]) a[2*n]
     # c[n] = k ^ (a[0] + a[2] ... a[2*n+1]) a[2*n+1]
-    
+
     def __init__(self, T):
         self.T = T
         self.X = self.calc_X() 
@@ -48,12 +48,22 @@ class Point:
         Y = ''.join(str(_) for _ in c)
         return Y
 
-def base(n, b):
+def to_base(n, b):
+    # convert integer base 10 to base b 
     s = ''
     while n:
         s = str(n % b) + s
         n //= b
     return s
+
+def from_base_fp(n_fp, b):
+    # convert floating point base b to base 10 
+    o = 0
+    i = 0
+    for fp in n_fp:
+        i += 1
+        o += int(fp) / (b ** i)
+    return o
 
 def is_power_of_three(n):
     while (n % 3 == 0):
@@ -70,6 +80,7 @@ def k(input, n):
     return output
 
 def main():
+    precision = 4           # T significant_digits multiplier
     delay = .25 / 5
     welcome = 'P E A N O for 🐍s & 👧s'
     os.system('clear')
@@ -81,7 +92,7 @@ def main():
     os.system('clear')
     sleep(delay)
     while True:
-        number_of_points = int(input('Number of points: '),10)
+        number_of_points = int(input('Number of points: '), 10)
         if not is_power_of_three(number_of_points):
             print('** Number of points must be a power of 3 **')
         else:
@@ -91,25 +102,32 @@ def main():
     # significant_digits is number of T digits required
     # to represent T in base 3 for a given number_of_points
     # requires 2 * significant_digits (padded with zeros)
-    # log base 3 of the number of points = length
+    # log base 3 of the number of points = length,
     # for ex, 9 base 10 requires log (3) 9 = 2 digits
-    # in python, no decimals allowed except base 10 
-    # therefore, manually implement base 3 addition
-
+    # in python, no floating points allowed in base 3
+    # therefore, all base 3 numbers in this program are 
+    # represented without the leading '.' but implied to
+    # fall in range 0 ... 1 required for Peano (Cantor set)
+    # https://en.wikipedia.org/wiki/Cantor_set
+    
     print('Generating T values ...')
     significant_digits = int(math.log(number_of_points, 3))
     points = []
     for n in range(number_of_points):
-        T = base(n, 3)
-        T = T.rjust(significant_digits, '0')      # pad start
-        T = T.ljust(significant_digits * 2, '0')  # pad end
+        T = to_base(n, 3)
+        T = T.rjust(significant_digits, '0')
+        T = T.ljust(significant_digits * precision, '0')
         point = Point(T);
         points.append(point)
     print('Calculating points ...')
     print('')
+
+    display = '.{} -------> (.{} , .{})'
+    display_convert = '.{} -------> (.{} , .{})    ({:.' + str(precision) + 'f} , {:.' + str(precision) + 'f})'
     for point in points:
         #  os.system('clear')
-        print(point.T, ' -------> (', point.X, ',', point.Y, ')')
+        print(display.format(point.T, point.X, point.Y))
+        # print(display_convert.format(point.T, point.X, point.Y, from_base_fp(point.X,3), from_base_fp(point.Y,3)))
         sleep(delay)
     print('')
 
