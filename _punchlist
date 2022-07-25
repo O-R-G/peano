@@ -1,1 +1,3 @@
-- add turtle module for drawing peano curve
++ add turtle module for drawing peano curve
+- add command line args to spawn windows with settings
+- work out error in drawing for odd powers of 3 which compresses x values
