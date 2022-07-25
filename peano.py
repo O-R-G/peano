@@ -3,6 +3,7 @@ from time import sleep
 import sys
 import random
 import math
+import turtle 
 
 class Point:
     # Peano's notation
@@ -80,7 +81,10 @@ def k(input, n):
     return output
 
 def main():
-    precision = 4           # T significant_digits multiplier
+    _points = 0         # number of points
+    _precision = 4      # T significant_digits multiplier
+    _scale_ = 100       # display h, w in px
+
     delay = .25 / 5
     welcome = 'P E A N O for 🐍s & 👧s'
     os.system('clear')
@@ -92,11 +96,13 @@ def main():
     os.system('clear')
     sleep(delay)
     while True:
-        number_of_points = int(input('Number of points: '), 10)
-        if not is_power_of_three(number_of_points):
+        _points = int(input('Points: ') or '9')
+        if not is_power_of_three(_points):
             print('** Number of points must be a power of 3 **')
         else:
-            break
+            break        
+    _scale = int(input('Scale: ') or '400')
+    _precision = int(input('Precision: ') or '4')
 
     # generate T in loop of range(number_of_points)
     # significant_digits is number of T digits required
@@ -110,25 +116,51 @@ def main():
     # fall in range 0 ... 1 required for Peano (Cantor set)
     # https://en.wikipedia.org/wiki/Cantor_set
     
+
+    # *** siginificant digits not working correctly for odd powers ***
+    # surely to do with division / 2 
+    # only odd number exponents draw incorrectly, compressing in x
+
+    # repeat = 1
+    # while repeat:
     print('Generating T values ...')
-    significant_digits = int(math.log(number_of_points, 3))
+    significant_digits = int(math.log(_points, 3))
     points = []
-    for n in range(number_of_points):
+    for n in range(_points):
         T = to_base(n, 3)
         T = T.rjust(significant_digits, '0')
-        T = T.ljust(significant_digits * precision, '0')
+        T = T.ljust(significant_digits * _precision, '0')
         point = Point(T);
         points.append(point)
     print('Calculating points ...')
     print('')
 
     display = '.{} -------> (.{} , .{})'
-    display_convert = '.{} -------> (.{} , .{})    ({:.' + str(precision) + 'f} , {:.' + str(precision) + 'f})'
+    display_convert = '.{} -------> (.{} , .{})    ({:.' + str(_precision) + 'f} , {:.' + str(_precision) + 'f})'
     for point in points:
-        #  os.system('clear')
         print(display.format(point.T, point.X, point.Y))
         # print(display_convert.format(point.T, point.X, point.Y, from_base_fp(point.X,3), from_base_fp(point.Y,3)))
-        sleep(delay)
+        # sleep(delay)
     print('')
+
+    # display
+    t = turtle.Pen()
+    t.speed(0)
+
+    # move origin
+    turtle.setup(_scale + 4, _scale + 8)  
+    turtle.setworldcoordinates(0, 0, _scale, _scale)
+
+    t.pendown()
+    for point in points:
+        x = from_base_fp(point.X,3) * _scale
+        y = from_base_fp(point.Y,3) * _scale
+        # print(x, y)
+        t.goto(x,y)
+        # t.goto(int(point.X),int(point.Y))
+    # sleep(delay)
+    turtle.done()
+
+    # _points = 3 ** (significant_digits + 1)
 
 main()
