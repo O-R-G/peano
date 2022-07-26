@@ -66,9 +66,9 @@ def from_base_fp(n_fp, b):
         o += int(fp) / (b ** i)
     return o
 
-def is_power_of_three(n):
-    while (n % 3 == 0):
-        n /= 3
+def is_power_of_9(n):
+    while (n % 9 == 0):
+        n /= 9
     return n == 1
 
 def k(input, n):
@@ -79,6 +79,57 @@ def k(input, n):
     for x in range(n):
         output = 2 - output
     return output
+
+def generate_points(_points, _precision):
+    # generate T in loop of range(_points)
+    # significant_digits is number of T digits required
+    # to represent T in base 3 for a given number_of_points
+    # requires 2 * significant_digits (padded with zeros)
+    # log base 3 of the number of points = length,
+    # for ex, 9 base 10 requires log (3) 9 = 2 digits
+    # in python, no floating points allowed in base 3
+    # therefore, all base 3 numbers in this program are 
+    # represented without the leading '.' but implied to
+    # fall in range 0 ... 1 required for Peano (Cantor set)
+    # https://en.wikipedia.org/wiki/Cantor_set
+    
+    print('Generating T values ...')
+    print('Calculating points ...')
+    significant_digits = int(math.log(_points, 3))
+    points = []
+    for n in range(_points):
+        T = to_base(n, 3)
+        T = T.rjust(significant_digits, '0')
+        T = T.ljust(significant_digits * _precision, '0')
+        point = Point(T);
+        points.append(point)
+    print('')
+    display = '.{} -------> (.{} , .{})'
+    display_convert = '.{} -------> (.{} , .{})    ({:.' + str(_precision) + 'f} , {:.' + str(_precision) + 'f})'
+    for point in points:
+        print(display.format(point.T, point.X, point.Y))
+        # print(display_convert.format(point.T, point.X, point.Y, from_base_fp(point.X,3), from_base_fp(point.Y,3)))
+    print('')
+    return points
+
+def init_display(_scale, title):
+    turtle.setup(_scale + 4, _scale + 8)  
+    # turtle.setup(_scale + 4, _scale + 8, 400, 200)
+    turtle.setworldcoordinates(0, 0, _scale, _scale)
+    turtle.title(title)
+    return True
+
+def draw_points(points, _scale):
+    t = turtle.Pen()
+    t.speed(10)
+    t.pendown()
+    for point in points:
+        x = from_base_fp(point.X,3) * _scale
+        y = from_base_fp(point.Y,3) * _scale
+        # print(x, y)
+        t.goto(x,y)
+    # turtle.done()
+    return True
 
 def main():
     _points = 0         # number of points
@@ -95,72 +146,32 @@ def main():
         sleep(delay)
     os.system('clear')
     sleep(delay)
-    while True:
-        _points = int(input('Points: ') or '9')
-        if not is_power_of_three(_points):
-            print('** Number of points must be a power of 3 **')
-        else:
-            break        
-    _scale = int(input('Scale: ') or '400')
-    _precision = int(input('Precision: ') or '4')
 
-    # generate T in loop of range(number_of_points)
-    # significant_digits is number of T digits required
-    # to represent T in base 3 for a given number_of_points
-    # requires 2 * significant_digits (padded with zeros)
-    # log base 3 of the number of points = length,
-    # for ex, 9 base 10 requires log (3) 9 = 2 digits
-    # in python, no floating points allowed in base 3
-    # therefore, all base 3 numbers in this program are 
-    # represented without the leading '.' but implied to
-    # fall in range 0 ... 1 required for Peano (Cantor set)
-    # https://en.wikipedia.org/wiki/Cantor_set
-    
+    # if args, use args 
+    # ** add error checking **
+    if sys.argv[1:]:
+        _points = int(sys.argv[1])
+        _scale = int(sys.argv[2])
+        _precision = int(sys.argv[3])
+    else:
+        while True:        
+            _points = int(input('Points: ') or '9')
+            if not is_power_of_9(_points):
+                print('** Number of points must be a power of 9 **')
+            else:
+                break        
+        _scale = int(input('Scale: ') or '400')
+        _precision = int(input('Precision: ') or '4')
 
-    # *** siginificant digits not working correctly for odd powers ***
-    # surely to do with division / 2 
-    # only odd number exponents draw incorrectly, compressing in x
+    # points = generate_points(_points, _precision)
+    display = init_display(_scale, welcome)
+    # draw = draw_points(points, _scale)
 
-    # repeat = 1
-    # while repeat:
-    print('Generating T values ...')
-    significant_digits = int(math.log(_points, 3))
-    points = []
-    for n in range(_points):
-        T = to_base(n, 3)
-        T = T.rjust(significant_digits, '0')
-        T = T.ljust(significant_digits * _precision, '0')
-        point = Point(T);
-        points.append(point)
-    print('Calculating points ...')
-    print('')
+    for n in range(10):
+        points = generate_points(_points * 9 ** n, _precision)
+        draw = draw_points(points, _scale)
 
-    display = '.{} -------> (.{} , .{})'
-    display_convert = '.{} -------> (.{} , .{})    ({:.' + str(_precision) + 'f} , {:.' + str(_precision) + 'f})'
-    for point in points:
-        print(display.format(point.T, point.X, point.Y))
-        # print(display_convert.format(point.T, point.X, point.Y, from_base_fp(point.X,3), from_base_fp(point.Y,3)))
-        # sleep(delay)
-    print('')
-
-    # display
-    t = turtle.Pen()
-    t.speed(0)
-
-    # move origin
-    turtle.setup(_scale + 4, _scale + 8)  
-    turtle.setworldcoordinates(0, 0, _scale, _scale)
-
-    t.pendown()
-    for point in points:
-        x = from_base_fp(point.X,3) * _scale
-        y = from_base_fp(point.Y,3) * _scale
-        # print(x, y)
-        t.goto(x,y)
-        # t.goto(int(point.X),int(point.Y))
-    # sleep(delay)
-    turtle.done()
-
-    # _points = 3 ** (significant_digits + 1)
+    exit()
 
 main()
+
