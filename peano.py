@@ -92,7 +92,9 @@ def generate_points(_points, _precision):
     # represented without the leading '.' but implied to
     # fall in range 0 ... 1 required for Peano (Cantor set)
     # https://en.wikipedia.org/wiki/Cantor_set
-    
+    #
+    # _points is always a power of 9 (specified in _detail)
+
     print('Generating T values ...')
     print('Calculating points ...')
     significant_digits = int(math.log(_points, 3))
@@ -112,29 +114,35 @@ def generate_points(_points, _precision):
     print('')
     return points
 
-def init_display(_scale, title):
-    turtle.setup(_scale + 4, _scale + 8)  
-    # turtle.setup(_scale + 4, _scale + 8, 400, 200)
-    turtle.setworldcoordinates(0, 0, _scale, _scale)
+def init_display(_display, title):
+    turtle.setup(_display + 4, _display + 8)  
+    # turtle.setup(_display + 4, _display + 8, 400, 200)
+    turtle.setworldcoordinates(0, 0, _display, _display)
     turtle.title(title)
     return True
 
-def draw_points(points, _scale):
+def draw_points(points, _display):
     t = turtle.Pen()
     t.speed(10)
     t.pendown()
     for point in points:
-        x = from_base_fp(point.X,3) * _scale
-        y = from_base_fp(point.Y,3) * _scale
-        # print(x, y)
+        x = from_base_fp(point.X,3) * _display
+        y = from_base_fp(point.Y,3) * _display
         t.goto(x,y)
-    # turtle.done()
     return True
 
 def main():
-    _points = 0         # number of points
+    # plot Peano curve of 9^n points using turtle graphics
+    # arguments on command line or input interactive
+    #
+    # python peano.py 1 400 4
+    # python peano.py
+
+    _points = 0         # number of (X,Y) points to generate
+    _detail = 0         # power of 9 to generate _points
+                        # '*' runs iteratively 9^n _points
+    _display = 100      # display h, w in px
     _precision = 4      # T significant_digits multiplier
-    _scale_ = 100       # display h, w in px
 
     delay = .25 / 5
     welcome = 'P E A N O for 🐍s & 👧s'
@@ -145,33 +153,31 @@ def main():
         print('\n' + (' ' * 36) + ('. ' * (i%3)) + 'O ' + ('. ' * (2 - i%3)))
         sleep(delay)
     os.system('clear')
-    sleep(delay)
+    sleep(delay)   
 
-    # if args, use args 
-    # ** add error checking **
     if sys.argv[1:]:
-        _points = int(sys.argv[1])
-        _scale = int(sys.argv[2])
+        _detail = sys.argv[1] 
+        _display = int(sys.argv[2])
         _precision = int(sys.argv[3])
-    else:
-        while True:        
-            _points = int(input('Points: ') or '9')
-            if not is_power_of_9(_points):
-                print('** Number of points must be a power of 9 **')
-            else:
-                break        
-        _scale = int(input('Scale: ') or '400')
+        print(sys.argv[1:])
+    else:    
+        _detail = input('Detail: ') or '1'
+        _display = int(input('Display: ') or '400')
         _precision = int(input('Precision: ') or '4')
 
-    # points = generate_points(_points, _precision)
-    display = init_display(_scale, welcome)
-    # draw = draw_points(points, _scale)
+    display = init_display(_display, welcome)
 
-    for n in range(10):
-        points = generate_points(_points * 9 ** n, _precision)
-        draw = draw_points(points, _scale)
-
+    if _detail == '*':
+        # run iteratively
+        for n in range(100):
+            _points = 9 ** n            
+            points = generate_points(_points, _precision)
+            draw = draw_points(points, _display)   
+    else:
+        _points = 9 ** int(_detail)            
+        points = generate_points(_points, _precision)
+        draw = draw_points(points, _display)
+        turtle.done()
     exit()
 
 main()
-
