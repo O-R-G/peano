@@ -66,9 +66,9 @@ def from_base_fp(n_fp, b):
         o += int(fp) / (b ** i)
     return o
 
-def is_power_of_9(n):
-    while (n % 9 == 0):
-        n /= 9
+def is_power_of_3(n):
+    while (n % 3 == 0):
+        n /= 3
     return n == 1
 
 def k(input, n):
@@ -80,12 +80,13 @@ def k(input, n):
         output = 2 - output
     return output
 
-def generate_points(_points, _precision):
+def generate_points(_n, _points, _precision):
     # generate T in loop of range(_points)
-    # significant_digits is number of T digits required
-    # to represent T in base 3 for a given number_of_points
-    # requires 2 * significant_digits (padded with zeros)
+    # _n is number of T digits required to represent T
+    # in base 3 for a given number_of_points
+    # requires 2 * _n (padded with zeros)
     # log base 3 of the number of points = length,
+    # also is equal to _n which is user input
     # for ex, 9 base 10 requires log (3) 9 = 2 digits
     # in python, no floating points allowed in base 3
     # therefore, all base 3 numbers in this program are 
@@ -93,16 +94,16 @@ def generate_points(_points, _precision):
     # fall in range 0 ... 1 required for Peano (Cantor set)
     # https://en.wikipedia.org/wiki/Cantor_set
     #
-    # _points is always a power of 9 (specified in _detail)
+    # _points is always a power of 3 (specified in _n)
 
     print('Generating T values ...')
     print('Calculating points ...')
-    significant_digits = int(math.log(_points, 3))
+
     points = []
     for n in range(_points):
         T = to_base(n, 3)
-        T = T.rjust(significant_digits, '0')
-        T = T.ljust(significant_digits * _precision, '0')
+        T = T.rjust(_n, '0')
+        T = T.ljust(_n * _precision, '0')   # ** fix **
         point = Point(T);
         points.append(point)
     print('')
@@ -132,17 +133,18 @@ def draw_points(points, _display):
     return True
 
 def main():
+ 
     # plot Peano curve of 9^n points using turtle graphics
     # arguments on command line or input interactive
     #
-    # python peano.py 1 400 4
+    # python peano.py 1 4 400
     # python peano.py
 
-    _points = 0         # number of (X,Y) points to generate
-    _detail = 0         # power of 9 to generate _points
-                        # '*' runs iteratively 9^n _points
+    _n = 0              # power of 3 used to generate _points
+                        # '*' runs iteratively 3^n _points
+    _precision = 4      # T _n significant digits multiplier
     _display = 100      # display h, w in px
-    _precision = 4      # T significant_digits multiplier
+    _points = 0         # number of (X,Y) points to generate
 
     delay = .25 / 5
     welcome = 'P E A N O for 🐍s & 👧s'
@@ -156,26 +158,26 @@ def main():
     sleep(delay)   
 
     if sys.argv[1:]:
-        _detail = sys.argv[1] 
-        _display = int(sys.argv[2])
-        _precision = int(sys.argv[3])
+        _n = sys.argv[1] 
+        _precision = int(sys.argv[2])
+        _display = int(sys.argv[3])
         print(sys.argv[1:])
     else:    
-        _detail = input('Detail: ') or '1'
-        _display = int(input('Display: ') or '400')
+        _n = input('Points (3^n): ') or '1'
         _precision = int(input('Precision: ') or '4')
+        _display = int(input('Display: ') or '400')
 
     display = init_display(_display, welcome)
 
-    if _detail == '*':
+    if _n == '*':
         # run iteratively
         for n in range(100):
-            _points = 9 ** n            
-            points = generate_points(_points, _precision)
+            _points = 3 ** n            
+            points = generate_points(n, _points, _precision)
             draw = draw_points(points, _display)   
     else:
-        _points = 9 ** int(_detail)            
-        points = generate_points(_points, _precision)
+        _points =  3 ** int(_n)  
+        points = generate_points(int(_n), _points, _precision)
         draw = draw_points(points, _display)
         turtle.done()
     exit()
