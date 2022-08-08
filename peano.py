@@ -120,21 +120,40 @@ def init_display(_display, title):
     # turtle.setup(_display + 4, _display + 8, 400, 200)
     turtle.setworldcoordinates(0, 0, _display, _display)
     turtle.title(title)
+    # turtle.tracer(3,0)    # speedup, draw every 3 frames
+    turtle.tracer(9,0)    # speedup, draw every 3 frames
     return True
 
-def draw_points(points, _display):
+def draw_points(points, _display, previous):
     t = turtle.Pen()
-    t.speed(10)
+    # t.pencolor('red')
+    t.speed(0)
     t.pendown()
+    if previous:
+        t_previous = turtle.Pen()
+        t_previous.pencolor('white')
+        t_previous.pensize(4)
+        t_previous.speed(0)
+        t_previous.pendown()
+        t.goto(0,0)
+        j = 1
+    i = 0
     for point in points:
+        if previous:
+            if i % 3 == 0 and j < len(previous):
+                x_previous = from_base_fp(previous[j].X,3) * _display
+                y_previous = from_base_fp(previous[j].Y,3) * _display
+                t_previous.goto(x_previous,y_previous)
+                j += 1
         x = from_base_fp(point.X,3) * _display
         y = from_base_fp(point.Y,3) * _display
         t.goto(x,y)
+        i += 1
     return True
 
 def main():
  
-    # plot Peano curve of 9^n points using turtle graphics
+    # plot Peano curve of 3^n points using turtle graphics
     # arguments on command line or input interactive
     #
     # python peano.py 1 4 400
@@ -171,10 +190,13 @@ def main():
 
     if _n == '*':
         # run iteratively
+        previous = []
         for n in range(100):
             _points = 3 ** n            
             points = generate_points(n, _points, _precision)
-            draw = draw_points(points, _display)   
+            draw = draw_points(points, _display, previous)
+            # draw = draw_points(points, _display, False)
+            previous = points
     else:
         _points =  3 ** int(_n)  
         points = generate_points(int(_n), _points, _precision)
