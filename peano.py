@@ -120,20 +120,20 @@ def init_display(_display, title):
     # turtle.setup(_display + 4, _display + 8, 400, 200)
     turtle.setworldcoordinates(0, 0, _display, _display)
     turtle.title(title)
-    # turtle.tracer(3,0)    # speedup, draw every 3 frames
-    turtle.tracer(9,0)    # speedup, draw every 3 frames
+    turtle.tracer(3,0)    # speedup, draw every 3 frames
+    # turtle.tracer(9,0)    # speedup, draw every 9 frames
     return True
 
 def draw_points(points, _display, previous):
     t = turtle.Pen()
     # t.pencolor('red')
-    t.speed(0)
+    t.speed(2)
     t.pendown()
     if previous:
         t_previous = turtle.Pen()
-        t_previous.pencolor('white')
+        t_previous.pencolor('blue')
         t_previous.pensize(4)
-        t_previous.speed(0)
+        t_previous.speed(2)
         t_previous.pendown()
         t.goto(0,0)
         j = 1
@@ -194,13 +194,14 @@ def main():
         for n in range(100):
             _points = 3 ** n            
             points = generate_points(n, _points, _precision)
-            draw = draw_points(points, _display, previous)
-            # draw = draw_points(points, _display, False)
+            # draw = draw_points(points, _display, previous)
+            draw = draw_points(points, _display, False)
             previous = points
     else:
         _points =  3 ** int(_n)  
         points = generate_points(int(_n), _points, _precision)
-        draw = draw_points(points, _display)
+        # draw = draw_points(points, _display)
+        draw = draw_points(points, _display, False)
         turtle.done()
     exit()
 
