@@ -117,27 +117,30 @@ def generate_points(_n, _points, _precision):
 
 def init_display(_display, title):
     turtle.setup(_display + 4, _display + 8)  
-    # turtle.setup(_display + 4, _display + 8, 400, 200)
     turtle.setworldcoordinates(0, 0, _display, _display)
     turtle.title(title)
-    turtle.tracer(3,0)    # speedup, draw every 3 frames
-    # turtle.tracer(9,0)    # speedup, draw every 9 frames
+    # turtle.tracer(2,0)      # speedup, draw every 2 frames
+    # turtle.tracer(3,0)    # speedup, draw every 3 frames
+    # turtle.tracer(10,0)    # speedup, draw every 9 frames
+    # turtle.tracer(20,0)    # speedup, draw every 9 frames
     return True
 
-def draw_points(points, _display, previous):
+def draw_points(points, _display, previous, _count):
     t = turtle.Pen()
-    # t.pencolor('red')
-    t.speed(2)
+    t.speed(0)
     t.pendown()
     if previous:
         t_previous = turtle.Pen()
-        t_previous.pencolor('blue')
+        t_previous.pencolor(1,1,1)
         t_previous.pensize(4)
-        t_previous.speed(2)
+        t_previous.speed(0)
         t_previous.pendown()
         t.goto(0,0)
         j = 1
     i = 0
+    # t.pencolor(1,0,0)
+    # t.pencolor(0,0,_count * .1)
+    # t.pencolor(_count % 2,0,1 - _count % 2)
     for point in points:
         if previous:
             if i % 3 == 0 and j < len(previous):
@@ -164,6 +167,7 @@ def main():
     _precision = 4      # T _n significant digits multiplier
     _display = 100      # display h, w in px
     _points = 0         # number of (X,Y) points to generate
+    _count = 0          # number of draw loops in iterative mode
 
     delay = .25 / 5
     welcome = 'P E A N O for 🐍s & 👧s'
@@ -194,14 +198,19 @@ def main():
         for n in range(100):
             _points = 3 ** n            
             points = generate_points(n, _points, _precision)
-            # draw = draw_points(points, _display, previous)
-            draw = draw_points(points, _display, False)
+            if _precision == 0:
+                if _count % 2 == 0:
+                    draw = draw_points(points, _display, previous, _count)
+            else:    
+                draw = draw_points(points, _display, previous, _count)
+            # draw = draw_points(points, _display, False, _count)
             previous = points
+            _count += 1
     else:
         _points =  3 ** int(_n)  
         points = generate_points(int(_n), _points, _precision)
         # draw = draw_points(points, _display)
-        draw = draw_points(points, _display, False)
+        draw = draw_points(points, _display, False, _count)
         turtle.done()
     exit()
 

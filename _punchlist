@@ -3,5 +3,7 @@
 + work out error in drawing for odd powers of 3 which compresses x values
 + revise input names, Detail -> Points (3^n), Precision -> Order, Display
 + fix Precision/Order 
-- add recursive erase of provious curve
++ add recursive erase of previous curve
 - add ranges to input values (?)
+- adjust speed based combo of power of 3 and precision
+- if precision = 0, then skip every other draw loop
