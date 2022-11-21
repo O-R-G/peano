@@ -20,6 +20,7 @@ class Point:
     # b[n] = k ^ (a[1] + a[3] ... a[2*n]) a[2*n]
     # c[n] = k ^ (a[0] + a[2] ... a[2*n+1]) a[2*n+1]
 
+
     def __init__(self, T):
         self.T = T
         self.X = self.calc_X() 
@@ -48,6 +49,42 @@ class Point:
             c[n] = k(int(a[2 * n + 1]), e)
         Y = ''.join(str(_) for _ in c)
         return Y
+
+class Number:
+    # Number is a value on real number line b/t 0 and 1
+    # aka, T (in Peano's notation)
+    
+    # Peano's notation
+    # T = 0 . a[1]a[2]a[3]...
+    # X = 0 . b[1]b[2]b[3]...
+    # Y = 0 . c[1]c[2]c[3]...
+    # a[2*n-1] = k ^ (c[1] + c[2] ... c[n-1]) b[n]
+    # a[2*n] = k ^ (b[1] + b[2] ... b[n]) c[n]
+
+    # modified notation
+    # T = 0 . a[0]a[1]a[2]...
+    # X = 0 . b[0]b[1]b[2]...
+    # Y = 0 . c[0]c[1]c[2]...
+    # a[2*n-2] = k ^ (c[0] + c[1] ... c[n-2]) b[n-1]
+    # a[2*n-1] = k ^ (b[0] + b[1] ... b[n-1]) c[n-1]
+
+    def __init__(self, X, Y):
+        self.X = X
+        self.Y = Y
+        self.T = self.calc_T()
+
+    def calc_T(self):
+        b = list(self.X)
+        c = list(self.Y)
+        a = [0 for i in range(int(len(self.X)*2))]
+        for n in range(len(self.X)):
+            e = 0                                       
+            for i in range(2 * n):      # not yet correct
+                if i % 2 != 0:          # not yet correct
+                    e += int(a[i])      # not yet correct
+        #    b[n] = k(int(a[2 * n]), e)
+        T = ''.join(str(_) for _ in a)
+        return T
 
 def to_base(n, b):
     # convert integer base 10 to base b 
