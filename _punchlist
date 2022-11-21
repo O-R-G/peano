@@ -6,4 +6,7 @@
 + add recursive erase of previous curve
 - add ranges to input values (?)
 - adjust speed based combo of power of 3 and precision
-- if precision = 0, then skip every other draw loop
++ if precision = 0, then skip every other draw loop
+  (this is b/c peano function is not 1:1, but rather also 1:2 (and 1:4)!)
++ hide turtle, which speeds 
+- add class for number to check for 1, 2, or 4 coordinate pairs for any T on the number line
