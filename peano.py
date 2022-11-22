@@ -290,32 +290,25 @@ def main():
         # for now as 4 points (trying to figure out where 4 numbers (1d) map to 1 point (2d))
         # print only, dont draw for now
         # maybe allow enter X and Y interactively, but for now hardcoded
-
+        # also would be better handled as tuples
         _X = []
         _Y = []
-
         _X.append(X)
         _Y.append(Y)
-
         _X.append(X_prime)
         _Y.append(Y)
-
         _X.append(X)
         _Y.append(Y_prime)
-
         _X.append(X_prime)
         _Y.append(Y_prime)
-
-        print(_X)
-        print(_Y)
-
         numbers = generate_numbers(_X, _Y)
+        # draw = draw_points(numbers, _display, False, _count)
+        # turtle.done()
     else:
         _points =  3 ** int(_n)  
         points = generate_points(int(_n), _points, _precision)
         # draw = draw_points(points, _display)
         draw = draw_points(points, _display, False, _count)
-        # turtle.update()
         turtle.done()
     exit()
 
