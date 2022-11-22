@@ -65,8 +65,8 @@ class Number:
     # T = 0 . a[0]a[1]a[2]...
     # X = 0 . b[0]b[1]b[2]...
     # Y = 0 . c[0]c[1]c[2]...
-    # a[2*n-1] = k ^ (c[0] + c[1] ... c[n-2]) b[n]
-    # a[2*n] = k ^ (b[0] + b[1] ... b[n-1]) c[n]
+    # a[2*n] = k ^ (c[0] + c[1] ... c[n-1]) b[n]
+    # a[2*n+1] = k ^ (b[0] + b[1] ... b[n]) c[n]
 
     def __init__(self, X, Y):
         self.X = X
@@ -77,19 +77,17 @@ class Number:
         b = list(self.X)
         c = list(self.Y)
         a = [0 for i in range(int(len(self.X) * 2))]
-        for n in range(len(b)):
-            b_i = 0     # index
-            c_i = 0
-            b_e = 0     # exponent
-            c_e = 0
+        for n in range(len(b)):            
+            e_b = 0     
+            e_c = 0
             if n % 2 == 0:
-                b_e += int(b[b_i])              # to be confirmed
-                a[2*n] = k(int(c[n]), b_e)      # work out on paper
-                b_i += 1
+                for i in range(n):     	            
+                    e_b += int(c[i])
+                a[2*n] = k(int(b[n]), e_b)      
             else:
-                c_e += int(c[c_i])              # not right
-                a[2*n-1] = k(int(b[n]), c_e)   
-                c_i += 1
+                for i in range(n+1):
+                    e_c += int(b[i])
+                a[2*n+1] = k(int(c[n]), e_b)
         T = ''.join(str(_) for _ in a)
         return T
 
@@ -159,6 +157,24 @@ def generate_points(_n, _points, _precision):
     print('')
     return points
 
+def generate_numbers(_X, _Y):
+    # generate T values for given points (_X,_Y)
+    # all base 3 with no leading 0 or . (see above)
+    # len(T) = 2 * len(_X) || 2 * len(_Y)
+
+    print('Generating T values ...')
+    
+    numbers = []
+    for n in range(len(_X)):
+        number = Number(_X[n], _Y[n]);
+        numbers.append(number)
+    print('')
+    display = '(.{} , .{}) -------> .{}'
+    for number in numbers:
+        print(display.format(number.X, number.Y, number.T))
+    print('')
+    return numbers
+
 def init_display(_display, title):
     turtle.setup(_display + 4, _display + 8)  
     turtle.setworldcoordinates(0, 0, _display, _display)
@@ -220,6 +236,11 @@ def main():
     _points = 0         # number of (X,Y) points to generate
     _count = 0          # number of draw loops in iterative mode
 
+    X = ''              # X to calc T in Number mode
+    X_prime = ''        # X' to calc T in Number mode
+    Y = ''              # Y to calc T in Number mode
+    Y_prime = ''        # Y' to calc T in Number mode
+
     delay = .25 / 5
     welcome = 'P E A N O for 🐍s & 👧s'
     os.system('clear')
@@ -238,8 +259,14 @@ def main():
         print(sys.argv[1:])
     else:    
         _n = input('Points (3^n): ') or '1'
-        _precision = int(input('Precision: ') or '4')
-        _display = int(input('Display: ') or '400')
+        if _n == '+':
+            X = input('X : ') or '100000'
+            X_prime = input('X\': ') or '022222'
+            Y = input('Y : ') or '200000'
+            Y_prime = input('Y\': ') or '122222'
+        else:
+            _precision = int(input('Precision: ') or '4')
+            _display = int(input('Display: ') or '400')
 
     display = init_display(_display, welcome)
 
@@ -258,6 +285,31 @@ def main():
             # turtle.update()
             previous = points
             _count += 1
+    elif _n == '+':
+        # generate T given (X,Y)
+        # for now as 4 points (trying to figure out where 4 numbers (1d) map to 1 point (2d))
+        # print only, dont draw for now
+        # maybe allow enter X and Y interactively, but for now hardcoded
+
+        _X = []
+        _Y = []
+
+        _X.append(X)
+        _Y.append(Y)
+
+        _X.append(X_prime)
+        _Y.append(Y)
+
+        _X.append(X)
+        _Y.append(Y_prime)
+
+        _X.append(X_prime)
+        _Y.append(Y_prime)
+
+        print(_X)
+        print(_Y)
+
+        numbers = generate_numbers(_X, _Y)
     else:
         _points =  3 ** int(_n)  
         points = generate_points(int(_n), _points, _precision)
