@@ -51,7 +51,7 @@ class Point:
         return Y
 
 class Number:
-    # Number is a value on real number line b/t 0 and 1
+    # value on real number line b/t 0 and 1
     # aka, T (in Peano's notation)
     
     # Peano's notation
@@ -65,8 +65,8 @@ class Number:
     # T = 0 . a[0]a[1]a[2]...
     # X = 0 . b[0]b[1]b[2]...
     # Y = 0 . c[0]c[1]c[2]...
-    # a[2*n-2] = k ^ (c[0] + c[1] ... c[n-2]) b[n-1]
-    # a[2*n-1] = k ^ (b[0] + b[1] ... b[n-1]) c[n-1]
+    # a[2*n-1] = k ^ (c[0] + c[1] ... c[n-2]) b[n]
+    # a[2*n] = k ^ (b[0] + b[1] ... b[n-1]) c[n]
 
     def __init__(self, X, Y):
         self.X = X
@@ -76,13 +76,20 @@ class Number:
     def calc_T(self):
         b = list(self.X)
         c = list(self.Y)
-        a = [0 for i in range(int(len(self.X)*2))]
-        for n in range(len(self.X)):
-            e = 0                                       
-            for i in range(2 * n):      # not yet correct
-                if i % 2 != 0:          # not yet correct
-                    e += int(a[i])      # not yet correct
-        #    b[n] = k(int(a[2 * n]), e)
+        a = [0 for i in range(int(len(self.X) * 2))]
+        for n in range(len(b)):
+            b_i = 0     # index
+            c_i = 0
+            b_e = 0     # exponent
+            c_e = 0
+            if n % 2 == 0:
+                b_e += int(b[b_i])              # to be confirmed
+                a[2*n] = k(int(c[n]), b_e)      # work out on paper
+                b_i += 1
+            else:
+                c_e += int(c[c_i])              # not right
+                a[2*n-1] = k(int(b[n]), c_e)   
+                c_i += 1
         T = ''.join(str(_) for _ in a)
         return T
 
@@ -200,7 +207,6 @@ def draw_points(points, _display, previous, _count):
     return True
 
 def main():
- 
     # plot Peano curve of 3^n points using turtle graphics
     # arguments on command line or input interactive
     #
