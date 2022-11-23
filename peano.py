@@ -6,6 +6,9 @@ import math
 import turtle 
 
 class Point:
+    # paired (X,Y) coodinate developed from T
+    # using Peano's construction
+
     # Peano's notation
     # T = 0 . a[1]a[2]a[3]...
     # X = 0 . b[1]b[2]b[3]...
@@ -51,9 +54,9 @@ class Point:
         return Y
 
 class Number:
-    # value on real number line b/t 0 and 1
-    # aka, T (in Peano's notation)
-    
+    # value T on real number line b/t 0 and 1
+    # to produce (X,Y) in Peano's construction
+  
     # Peano's notation
     # T = 0 . a[1]a[2]a[3]...
     # X = 0 . b[1]b[2]b[3]...
@@ -82,6 +85,7 @@ class Number:
             e_c = 0
             if n % 2 == 0:
                 for i in range(n):     	            
+
                     e_b += int(c[i])
                 a[2*n] = k(int(b[n]), e_b)      
             else:
@@ -152,6 +156,7 @@ def generate_points(_n, _points, _precision):
     display = '.{} -------> (.{} , .{})'
     display_convert = '.{} -------> (.{} , .{})    ({:.' + str(_precision) + 'f} , {:.' + str(_precision) + 'f})'
     for point in points:
+        # os.system('clear')
         print(display.format(point.T, point.X, point.Y))
         # print(display_convert.format(point.T, point.X, point.Y, from_base_fp(point.X,3), from_base_fp(point.Y,3)))
     print('')
@@ -172,6 +177,7 @@ def generate_numbers(_X, _Y):
     display = '(.{} , .{}) -------> .{}'
     for number in numbers:
         print(display.format(number.X, number.Y, number.T))
+        # print(display.format(from_base_fp(number.X, 3), from_base_fp(number.Y, 3), from_base_fp(number.T, 3)))
     print('')
     return numbers
 
@@ -190,14 +196,17 @@ def init_display(_display, title):
     return True
 
 def draw_points(points, _display, previous, _count):        
-    # turtle.hideturtle() 
     # turtle.tracer(3**(_count-1),0)    # close but not quite working correctly
     t = turtle.Pen()
-    t.hideturtle()
+    if previous:
+        t_previous = turtle.Pen()
+    # t_T = turtle.Pen()
+    # t_T.pencolor(1,0,0)
+    # t_T.hideturtle()
     t.speed(0)
     t.pendown()
     if previous:
-        t_previous = turtle.Pen()
+        # t_previous = turtle.Pen()
         t_previous.hideturtle()
         t_previous.pencolor(1,1,1)
         t_previous.pensize(4)
@@ -219,7 +228,13 @@ def draw_points(points, _display, previous, _count):
         x = from_base_fp(point.X,3) * _display
         y = from_base_fp(point.Y,3) * _display
         t.goto(x,y)
+        # T = from_base_fp(point.T,3) * _display
+        # t_T.goto(T,0)
+        display = 'T -------> {})'
+        os.system('clear')
+        print(display.format(from_base_fp(point.T, 3)))
         i += 1
+    t.hideturtle()
     return True
 
 def main():
