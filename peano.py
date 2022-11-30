@@ -82,16 +82,13 @@ class Number:
         a = [0 for i in range(int(len(self.X) * 2))]
         for n in range(len(b)):            
             e_b = 0     
-            e_c = 0
-            if n % 2 == 0:
-                for i in range(n):     	            
-
-                    e_b += int(c[i])
-                a[2*n] = k(int(b[n]), e_b)      
-            else:
-                for i in range(n+1):
-                    e_c += int(b[i])
-                a[2*n+1] = k(int(c[n]), e_b)
+            e_c = 0            
+            for i in range(n):    
+                e_b += int(c[i])
+            a[2*n] = k(int(b[n]), e_b)
+            for i in range(n+1):
+                e_c += int(b[i])
+            a[2*n+1] = k(int(c[n]), e_c)
         T = ''.join(str(_) for _ in a)
         return T
 
