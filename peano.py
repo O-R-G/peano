@@ -192,18 +192,14 @@ def init_display(_display, title):
     # turtle.tracer(20,0)    # speedup, draw every 9 frames
     return True
 
-def draw_points(points, _display, previous, _count):        
+def draw_points(points, _display, previous, _count, points_extra):
     # turtle.tracer(3**(_count-1),0)    # close but not quite working correctly
     t = turtle.Pen()
-    if previous:
-        t_previous = turtle.Pen()
-    # t_T = turtle.Pen()
-    # t_T.pencolor(1,0,0)
-    # t_T.hideturtle()
     t.speed(0)
     t.pendown()
+    t.hideturtle()
     if previous:
-        # t_previous = turtle.Pen()
+        t_previous = turtle.Pen()
         t_previous.hideturtle()
         t_previous.pencolor(1,1,1)
         t_previous.pensize(4)
@@ -212,27 +208,31 @@ def draw_points(points, _display, previous, _count):
         t.goto(0,0)
         j = 1
     i = 0
-    # t.pencolor(1,0,0)
-    # t.pencolor(0,0,_count * .1)
-    # t.pencolor(_count % 2,0,1 - _count % 2)
+    point_previous = Point('0')
     for point in points:
         if previous:
             if i % 3 == 0 and j < len(previous):
                 x_previous = from_base_fp(previous[j].X,3) * _display
                 y_previous = from_base_fp(previous[j].Y,3) * _display
-                t_previous.goto(x_previous,y_previous)
+                # t_previous.goto(x_previous,y_previous)
                 j += 1
         x = from_base_fp(point.X,3) * _display
         y = from_base_fp(point.Y,3) * _display
+
+        # ** fix ** calculate a more precise position on the line
+        # using turtle functions position() and distance()
+        # also erase previous dot?
+        # or draw lines connecting red dots?
+        for point_extra in points_extra:
+            if from_base_fp(point_extra.T,3) >= from_base_fp(point_previous.T,3) \
+            and from_base_fp(point_extra.T,3) <= from_base_fp(point.T,3):
+                t.dot(_display / 50, 'red')
         t.goto(x,y)
-        t.dot()
-        # T = from_base_fp(point.T,3) * _display
-        # t_T.goto(T,0)
         display = 'T -------> {})'
         os.system('clear')
         print(display.format(from_base_fp(point.T, 3)))
+        point_previous = point
         i += 1
-    t.hideturtle()
     return True
 
 def main():
@@ -248,6 +248,8 @@ def main():
     _display = 100      # display h, w in px
     _points = 0         # number of (X,Y) points to generate
     _count = 0          # number of draw loops in iterative mode
+    _extra = []         # additional (x,y) coordinates
+    points_extra = []   # additional points to draw
 
     X = ''              # X to calc T in Number mode
     X_prime = ''        # X' to calc T in Number mode
@@ -275,44 +277,36 @@ def main():
         _precision = int(input('Precision: ') or '4')            
         _display = int(input('Display: ') or '400')
         if _n == '+':
-            _extra_points = []
-            print('Extra points (. to exit):')            
-            while X != '.' and Y != '.':
+            print('Extra points (. to exit):')
+            while X != '.':
                 X = input('X : ') or '100000'
-                Y = input('Y : ') or '100000'
+                Y = input('Y : ') or '100000'                    
                 if X != '.' and Y != '.':
-                    _extra_points.append({'x':X, 'y':Y})
-                print('\n')
+                    _extra.append({'x':X, 'y':Y})
     display = init_display(_display, welcome)
 
     if _n == '*' or _n == '+':
         # draw extra points
         if _n == '+':
-            _X = [x['x'] for x in _extra_points]
-            _Y = [y['y'] for y in _extra_points]
-            numbers = generate_numbers(_X, _Y)
-            # not yet working
-            draw = draw_points(numbers, _display, False, _count)
-            turtle.done()
+            _x = [x['x'] for x in _extra]
+            _y = [y['y'] for y in _extra]
+            points_extra = generate_numbers(_x, _y)
         # run iteratively
         previous = []
-        for n in range(100):
+        for n in range(1000):
             _points = 3 ** n            
             points = generate_points(n, _points, _precision)
             if _precision == 0:
                 if _count % 2 == 0:
-                    draw = draw_points(points, _display, previous, _count)
+                    draw = draw_points(points, _display, previous, _count, points_extra)
             else:    
-                draw = draw_points(points, _display, previous, _count)
-            # draw = draw_points(points, _display, False, _count)
-            # turtle.update()
+                draw = draw_points(points, _display, previous, _count, points_extra)
             previous = points
             _count += 1
     else:
         _points =  3 ** int(_n)  
         points = generate_points(int(_n), _points, _precision)
-        # draw = draw_points(points, _display)
-        draw = draw_points(points, _display, False, _count)
+        draw = draw_points(points, _display, False, _count, points_extra)
         turtle.done()
     exit()
 

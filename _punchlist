@@ -12,3 +12,4 @@
 + add class for number to check for 1, 2, or 4 coordinate pairs for any T on the number line
 + calculate T values from input coordinate points X, X', Y, Y'
 - draw T derived (4 values from Number) as red points or maybe +'s
+- add keyboard pause, rewind, step back / forward
