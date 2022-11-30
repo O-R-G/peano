@@ -225,6 +225,7 @@ def draw_points(points, _display, previous, _count):
         x = from_base_fp(point.X,3) * _display
         y = from_base_fp(point.Y,3) * _display
         t.goto(x,y)
+        t.dot()
         # T = from_base_fp(point.T,3) * _display
         # t_T.goto(T,0)
         display = 'T -------> {})'
@@ -271,18 +272,28 @@ def main():
         print(sys.argv[1:])
     else:    
         _n = input('Points (3^n): ') or '1'
+        _precision = int(input('Precision: ') or '4')            
+        _display = int(input('Display: ') or '400')
         if _n == '+':
-            X = input('X : ') or '100000'
-            X_prime = input('X\': ') or '022222'
-            Y = input('Y : ') or '200000'
-            Y_prime = input('Y\': ') or '122222'
-        else:
-            _precision = int(input('Precision: ') or '4')
-            _display = int(input('Display: ') or '400')
-
+            _extra_points = []
+            print('Extra points (. to exit):')            
+            while X != '.' and Y != '.':
+                X = input('X : ') or '100000'
+                Y = input('Y : ') or '100000'
+                if X != '.' and Y != '.':
+                    _extra_points.append({'x':X, 'y':Y})
+                print('\n')
     display = init_display(_display, welcome)
 
-    if _n == '*':
+    if _n == '*' or _n == '+':
+        # draw extra points
+        if _n == '+':
+            _X = [x['x'] for x in _extra_points]
+            _Y = [y['y'] for y in _extra_points]
+            numbers = generate_numbers(_X, _Y)
+            # not yet working
+            draw = draw_points(numbers, _display, False, _count)
+            turtle.done()
         # run iteratively
         previous = []
         for n in range(100):
@@ -297,25 +308,6 @@ def main():
             # turtle.update()
             previous = points
             _count += 1
-    elif _n == '+':
-        # generate T given (X,Y)
-        # for now as 4 points (trying to figure out where 4 numbers (1d) map to 1 point (2d))
-        # print only, dont draw for now
-        # maybe allow enter X and Y interactively, but for now hardcoded
-        # also would be better handled as tuples
-        _X = []
-        _Y = []
-        _X.append(X)
-        _Y.append(Y)
-        _X.append(X_prime)
-        _Y.append(Y)
-        _X.append(X)
-        _Y.append(Y_prime)
-        _X.append(X_prime)
-        _Y.append(Y_prime)
-        numbers = generate_numbers(_X, _Y)
-        # draw = draw_points(numbers, _display, False, _count)
-        # turtle.done()
     else:
         _points =  3 ** int(_n)  
         points = generate_points(int(_n), _points, _precision)
