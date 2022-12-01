@@ -189,6 +189,13 @@ def init_display(_display, title):
     # turtle.tracer(0,0)    # speedup, draw every 9 frames
     # turtle.tracer(10,0)    # speedup, draw every 9 frames
     # turtle.tracer(20,0)    # speedup, draw every 9 frames
+    # turtle.onkey(export_ps, "Down")
+    # turtle.listen()
+    return True
+
+def export_ps():
+    screen = turtle.getscreen()
+    screen.getcanvas().postscript(file='peano.eps')
     return True
 
 def draw_points(points, _display, previous, _count, points_extra):
@@ -310,8 +317,9 @@ def main():
             previous = points
             _count += 1
     else:
-        _points =  3 ** int(_n)  
+        _points =  3 ** int(_n)
         points = generate_points(int(_n), _points, _precision)
+        points_extra = []
         draw = draw_points(points, _display, False, _count, points_extra)
         turtle.done()
     exit()
