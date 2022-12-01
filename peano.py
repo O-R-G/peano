@@ -151,9 +151,9 @@ def generate_points(_n, _points, _precision):
     print('')
     display = '.{} -------> (.{} , .{})'
     display_convert = '.{} -------> (.{} , .{})    ({:.' + str(_precision) + 'f} , {:.' + str(_precision) + 'f})'
-    # for point in points:
+    for point in points:
         # os.system('clear')
-        # print(display.format(point.T, point.X, point.Y))
+        print(display.format(point.T, point.X, point.Y))
         # print(display_convert.format(point.T, point.X, point.Y, from_base_fp(point.X,3), from_base_fp(point.Y,3)))
     print('')
     return points
@@ -171,8 +171,8 @@ def generate_numbers(_X, _Y):
         numbers.append(number)
     print('')
     display = '(.{} , .{}) -------> .{}'
-    # for number in numbers:
-        # print(display.format(number.X, number.Y, number.T))
+    for number in numbers:
+        print(display.format(number.X, number.Y, number.T))
         # print(display.format(from_base_fp(number.X, 3), from_base_fp(number.Y, 3), from_base_fp(number.T, 3)))
     print('')
     return numbers
@@ -229,27 +229,19 @@ def draw_points(points, _display, previous, _count, points_extra):
         for point_extra in points_extra:
             T = from_base_fp(point_extra.T,3)
             _T = from_base_fp(point_previous.T,3)
-            _X = from_base_fp(point_previous.X,3)
-            _Y = from_base_fp(point_previous.Y,3)
             T_ = from_base_fp(point.T,3)
-            X_ = from_base_fp(point.X,3) * _display
-            Y_ = from_base_fp(point.Y,3) * _display
             if T > _T and T <= T_:
-                adjust = (T - _T ) / (T_ - _T)
-                X = abs(X_ - _X) * adjust
-                Y = abs(Y_ - _Y) * adjust
-                t_extra.goto(x,y)
-                t_extra.dot(_display / 50, 'blue')
-                t_extra.goto(X,Y)
-                t_extra.dot(_display / 50, 'red')
+                t.pencolor(1,0,0)
+                t.dot()
         t.goto(x,y)
+        t.pencolor(0,0,0)
         display = 'T -------> {})'
-        # os.system('clear')
-        # print(display.format(from_base_fp(point.T, 3)))
+        os.system('clear')
+        print(display.format(from_base_fp(point.T, 3)))
         point_previous = point
         i += 1
         
-    t.clear()
+    # t.clear()
     # t_extra.clear()
     return True
 
@@ -267,12 +259,8 @@ def main():
     _points = 0         # number of (X,Y) points to generate
     _count = 0          # number of draw loops in iterative mode
     _extra = []         # additional (x,y) coordinates
-    points_extra = []   # additional points to draw
-
-    X = ''              # X to calc T in Number mode
-    X_prime = ''        # X' to calc T in Number mode
-    Y = ''              # Y to calc T in Number mode
-    Y_prime = ''        # Y' to calc T in Number mode
+    _X = ''             # X to calc T in Number mode
+    _Y = ''             # Y to calc T in Number mode
 
     delay = .25 / 5
     welcome = 'P E A N O for 🐍s & 👧s'
@@ -296,11 +284,11 @@ def main():
         _display = int(input('Display: ') or '400')
         if _n == '+':
             print('Extra points (. to exit):')
-            while X != '.':
-                X = input('X : ') or '100000'
-                Y = input('Y : ') or '100000'                    
-                if X != '.' and Y != '.':
-                    _extra.append({'x':X, 'y':Y})
+            while _X != '.':
+                _X = input('X : ') or '100000'
+                _Y = input('Y : ') or '100000'                    
+                if _X != '.' and _Y != '.':
+                    _extra.append({'x':_X, 'y':_Y})
     display = init_display(_display, welcome)
 
     if _n == '*' or _n == '+':
