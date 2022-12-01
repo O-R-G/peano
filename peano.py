@@ -23,7 +23,6 @@ class Point:
     # b[n] = k ^ (a[1] + a[3] ... a[2*n]) a[2*n]
     # c[n] = k ^ (a[0] + a[2] ... a[2*n+1]) a[2*n+1]
 
-
     def __init__(self, T):
         self.T = T
         self.X = self.calc_X() 
@@ -152,9 +151,9 @@ def generate_points(_n, _points, _precision):
     print('')
     display = '.{} -------> (.{} , .{})'
     display_convert = '.{} -------> (.{} , .{})    ({:.' + str(_precision) + 'f} , {:.' + str(_precision) + 'f})'
-    for point in points:
+    # for point in points:
         # os.system('clear')
-        print(display.format(point.T, point.X, point.Y))
+        # print(display.format(point.T, point.X, point.Y))
         # print(display_convert.format(point.T, point.X, point.Y, from_base_fp(point.X,3), from_base_fp(point.Y,3)))
     print('')
     return points
@@ -172,8 +171,8 @@ def generate_numbers(_X, _Y):
         numbers.append(number)
     print('')
     display = '(.{} , .{}) -------> .{}'
-    for number in numbers:
-        print(display.format(number.X, number.Y, number.T))
+    # for number in numbers:
+        # print(display.format(number.X, number.Y, number.T))
         # print(display.format(from_base_fp(number.X, 3), from_base_fp(number.Y, 3), from_base_fp(number.T, 3)))
     print('')
     return numbers
@@ -184,7 +183,7 @@ def init_display(_display, title):
     turtle.title(title)
     # turtle.tracer(2,0)      # speedup, draw every 2 frames
     # turtle.tracer(3,0)    # speedup, draw every 3 frames
-    turtle.tracer(9,0)    # speedup, draw every 9 frames
+    # turtle.tracer(9,0)    # speedup, draw every 9 frames
     # turtle.tracer(81,0)    # speedup, draw every 9 frames
     # turtle.tracer(243,0)    # speedup, draw every 9 frames
     # turtle.tracer(0,0)    # speedup, draw every 9 frames
@@ -193,11 +192,15 @@ def init_display(_display, title):
     return True
 
 def draw_points(points, _display, previous, _count, points_extra):
-    # turtle.tracer(3**(_count-1),0)    # close but not quite working correctly
+    # turtle.tracer(3**(_count-1),0)    # close but not quite working correctly        
     t = turtle.Pen()
     t.speed(0)
+    # t.speed(1)
     t.pendown()
     t.hideturtle()
+    t_extra = turtle.Pen()
+    t_extra.hideturtle()
+    t_extra.penup()
     if previous:
         t_previous = turtle.Pen()
         t_previous.hideturtle()
@@ -224,15 +227,30 @@ def draw_points(points, _display, previous, _count, points_extra):
         # also erase previous dot?
         # or draw lines connecting red dots?
         for point_extra in points_extra:
-            if from_base_fp(point_extra.T,3) >= from_base_fp(point_previous.T,3) \
-            and from_base_fp(point_extra.T,3) <= from_base_fp(point.T,3):
-                t.dot(_display / 50, 'red')
+            T = from_base_fp(point_extra.T,3)
+            _T = from_base_fp(point_previous.T,3)
+            _X = from_base_fp(point_previous.X,3)
+            _Y = from_base_fp(point_previous.Y,3)
+            T_ = from_base_fp(point.T,3)
+            X_ = from_base_fp(point.X,3) * _display
+            Y_ = from_base_fp(point.Y,3) * _display
+            if T > _T and T <= T_:
+                adjust = (T - _T ) / (T_ - _T)
+                X = abs(X_ - _X) * adjust
+                Y = abs(Y_ - _Y) * adjust
+                t_extra.goto(x,y)
+                t_extra.dot(_display / 50, 'blue')
+                t_extra.goto(X,Y)
+                t_extra.dot(_display / 50, 'red')
         t.goto(x,y)
         display = 'T -------> {})'
-        os.system('clear')
-        print(display.format(from_base_fp(point.T, 3)))
+        # os.system('clear')
+        # print(display.format(from_base_fp(point.T, 3)))
         point_previous = point
         i += 1
+        
+    t.clear()
+    # t_extra.clear()
     return True
 
 def main():
