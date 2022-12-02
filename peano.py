@@ -175,6 +175,7 @@ def generate_numbers(_X, _Y):
         print(display.format(number.X, number.Y, number.T))
         # print(display.format(from_base_fp(number.X, 3), from_base_fp(number.Y, 3), from_base_fp(number.T, 3)))
     print('')
+    _proceed = input('Proceed? ') or 'y' 
     return numbers
 
 def init_display(_display, title):
@@ -189,11 +190,11 @@ def init_display(_display, title):
     # turtle.tracer(0,0)    # speedup, draw every 9 frames
     # turtle.tracer(10,0)    # speedup, draw every 9 frames
     # turtle.tracer(20,0)    # speedup, draw every 9 frames
-    # turtle.onkey(export_ps, "Down")
+    # turtle.onkey(export_eps, "Down")
     # turtle.listen()
     return True
 
-def export_ps():
+def export_eps():
     screen = turtle.getscreen()
     screen.getcanvas().postscript(file='peano.eps')
     return True
@@ -202,11 +203,12 @@ def draw_points(points, _display, previous, _count, points_extra):
     # turtle.tracer(3**(_count-1),0)    # close but not quite working correctly        
     t = turtle.Pen()
     t.speed(0)
-    # t.speed(1)
     t.pendown()
     t.hideturtle()
     t_extra = turtle.Pen()
+    t_extra.speed(0)
     t_extra.hideturtle()
+    t_extra.pencolor(0,0,1)
     t_extra.penup()
     if previous:
         t_previous = turtle.Pen()
@@ -219,20 +221,20 @@ def draw_points(points, _display, previous, _count, points_extra):
         j = 1
     i = 0
     point_previous = Point('0')
+    for point_extra in points_extra:
+        X = from_base_fp(point_extra.X,3) * _display
+        Y = from_base_fp(point_extra.Y,3) * _display
+        t_extra.goto(X, Y)
+        t_extra.dot()
     for point in points:
         if previous:
             if i % 3 == 0 and j < len(previous):
                 x_previous = from_base_fp(previous[j].X,3) * _display
                 y_previous = from_base_fp(previous[j].Y,3) * _display
-                # t_previous.goto(x_previous,y_previous)
+                t_previous.goto(x_previous,y_previous)
                 j += 1
         x = from_base_fp(point.X,3) * _display
         y = from_base_fp(point.Y,3) * _display
-
-        # ** fix ** calculate a more precise position on the line
-        # using turtle functions position() and distance()
-        # also erase previous dot?
-        # or draw lines connecting red dots?
         for point_extra in points_extra:
             T = from_base_fp(point_extra.T,3)
             _T = from_base_fp(point_previous.T,3)
@@ -247,9 +249,9 @@ def draw_points(points, _display, previous, _count, points_extra):
         print(display.format(from_base_fp(point.T, 3)))
         point_previous = point
         i += 1
-        
     # t.clear()
     # t_extra.clear()
+    # export_eps()
     return True
 
 def main():
@@ -300,6 +302,7 @@ def main():
 
     if _n == '*' or _n == '+':
         # draw extra points
+        points_extra = []
         if _n == '+':
             _x = [x['x'] for x in _extra]
             _y = [y['y'] for y in _extra]
