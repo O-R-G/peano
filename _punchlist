@@ -13,3 +13,12 @@
 + calculate T values from input coordinate points X, X', Y, Y'
 - draw T derived (4 values from Number) as red points or maybe +'s
 - add keyboard pause, rewind, step back / forward
+- add sound (as per philip)
+  map x value to pitch of 'instrument' #1 (timbre?)
+  map y value to pitch of 'instrument' #2 (timbre?)
+  play both simultaneously as a chord
+  maybe do this without drawing as drawing is too slow
+  one whole mapping of T should be of the same duration
+  so that tempo gets faster and faster as the curve becomes denser
+  or maybe just sine waves using pysine library or pysinewave library
+  https://pypi.org/project/pysinewave/
