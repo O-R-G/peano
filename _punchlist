@@ -13,7 +13,7 @@
 + calculate T values from input coordinate points X, X', Y, Y'
 - draw T derived (4 values from Number) as red points or maybe +'s
 - add keyboard pause, rewind, step back / forward
-- add sound (as per philip)
+/ add sound (as per philip)
   map x value to pitch of 'instrument' #1 (timbre?)
   map y value to pitch of 'instrument' #2 (timbre?)
   play both simultaneously as a chord

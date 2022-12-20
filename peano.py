@@ -1,5 +1,6 @@
 import os
 from time import sleep
+from pysinewave import SineWave
 import sys
 import random
 import math
@@ -199,7 +200,7 @@ def export_eps():
     screen.getcanvas().postscript(file='peano.eps')
     return True
 
-def draw_points(points, _display, previous, _count, points_extra):
+def draw_points(points, _display, previous, _count, points_extra, sinewave):
     # turtle.tracer(3**(_count-1),0)    # close but not quite working correctly        
     t = turtle.Pen()
     t.speed(0)
@@ -248,6 +249,11 @@ def draw_points(points, _display, previous, _count, points_extra):
         os.system('clear')
         print(display.format(from_base_fp(point.T, 3)))
         point_previous = point
+        # sinewave.set_pitch(x * 2)
+        # sinewave.set_pitch(x * 0.1)
+        # sinewave.set_pitch(x)
+        sinewave.set_pitch(y)
+        sinewave.play()
         i += 1
     # t.clear()
     # t_extra.clear()
@@ -300,6 +306,11 @@ def main():
                     _extra.append({'x':_X, 'y':_Y})
     display = init_display(_display, welcome)
 
+    sinewave = SineWave(pitch = 12, pitch_per_second = 1000)
+    # sinewave.play()
+    # sinewave.set_pitch(-5)
+
+
     if _n == '*' or _n == '+':
         # draw extra points
         points_extra = []
@@ -314,9 +325,9 @@ def main():
             points = generate_points(n, _points, _precision)
             if _precision == 0:
                 if _count % 2 == 0:
-                    draw = draw_points(points, _display, previous, _count, points_extra)
+                    draw = draw_points(points, _display, previous, _count, points_extra, sinewave)
             else:    
-                draw = draw_points(points, _display, previous, _count, points_extra)
+                draw = draw_points(points, _display, previous, _count, points_extra, sinewave)
             previous = points
             _count += 1
     else:
