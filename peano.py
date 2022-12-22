@@ -253,14 +253,13 @@ def draw_points(points, _display, previous, _count, points_extra, sinewave):
         # sinewave.set_pitch(x * 2)
         # sinewave.set_pitch(x * 0.1)
         # sinewave.set_pitch(x)
-
         # sinewave.set_pitch(y)
         # sinewave.play()
 
-        sinewave[0].set_pitch(y)
+        sinewave[0].set_pitch(x)
         sinewave[0].play()
 
-        sinewave[1].set_pitch(x)
+        sinewave[1].set_pitch(y)
         sinewave[1].play()
     
         i += 1
