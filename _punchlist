@@ -22,3 +22,5 @@
   so that tempo gets faster and faster as the curve becomes denser
   or maybe just sine waves using pysine library or pysinewave library
   https://pypi.org/project/pysinewave/
++ install pysinewave (editable) with > pip install -e . in local git repo because 
+  pip version does not work with channels. added to this repo as a submodule

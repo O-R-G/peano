@@ -249,11 +249,20 @@ def draw_points(points, _display, previous, _count, points_extra, sinewave):
         os.system('clear')
         print(display.format(from_base_fp(point.T, 3)))
         point_previous = point
+
         # sinewave.set_pitch(x * 2)
         # sinewave.set_pitch(x * 0.1)
         # sinewave.set_pitch(x)
-        sinewave.set_pitch(y)
-        sinewave.play()
+
+        # sinewave.set_pitch(y)
+        # sinewave.play()
+
+        sinewave[0].set_pitch(y)
+        sinewave[0].play()
+
+        sinewave[1].set_pitch(x)
+        sinewave[1].play()
+    
         i += 1
     # t.clear()
     # t_extra.clear()
@@ -306,10 +315,15 @@ def main():
                     _extra.append({'x':_X, 'y':_Y})
     display = init_display(_display, welcome)
 
-    sinewave = SineWave(pitch = 12, pitch_per_second = 1000)
-    # sinewave.play()
-    # sinewave.set_pitch(-5)
+    # create sinewaves (panned to left and right)
+    # using pysinewave module local version included in this repository
+    # as it has support for channels and pip version does not
+    # see https://github.com/daviddavini/pysinewave
 
+    # sinewave = SineWave(pitch = 12, pitch_per_second = 1000, channels = 2, channel_side = "r")
+    left = SineWave(pitch = 12, pitch_per_second = 1000, channels = 2, channel_side = "l")
+    right = SineWave(pitch = 12, pitch_per_second = 1000, channels = 2, channel_side = "r")
+    sinewave = (left, right)
 
     if _n == '*' or _n == '+':
         # draw extra points
@@ -334,7 +348,7 @@ def main():
         _points =  3 ** int(_n)
         points = generate_points(int(_n), _points, _precision)
         points_extra = []
-        draw = draw_points(points, _display, False, _count, points_extra)
+        draw = draw_points(points, _display, False, _count, points_extra, sinewave)
         turtle.done()
     exit()
 

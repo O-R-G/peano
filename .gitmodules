@@ -1,0 +1,3 @@
+[submodule "pysinewave"]
+	path = pysinewave
+	url = git@github.com:daviddavini/pysinewave.git
