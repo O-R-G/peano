@@ -195,17 +195,19 @@ def init_display(_display, title):
     # turtle.listen()
     return True
 
-def export_eps():
+def export_eps(_count):
     screen = turtle.getscreen()
-    screen.getcanvas().postscript(file='peano.eps')
+    screen.getcanvas().postscript(file='out/peano-' + str(_count) + '.eps')
     return True
 
 def draw_points(points, _display, previous, _count, points_extra, sinewave):
-    # turtle.tracer(3**(_count-1),0)    # close but not quite working correctly        
+    # turtle.tracer(3**(_count-1),0)    # close but not quite working correctly
     t = turtle.Pen()
     t.speed(0)
-    t.pendown()
+    # t.speed(1)
+    # t.speed(5)
     t.hideturtle()
+    t.pendown()
     t_extra = turtle.Pen()
     t_extra.speed(0)
     t_extra.hideturtle()
@@ -250,22 +252,36 @@ def draw_points(points, _display, previous, _count, points_extra, sinewave):
         print(display.format(from_base_fp(point.T, 3)))
         point_previous = point
 
+        # x_pitch = from_base_fp(point.X,3) * 12 * 3 - 36
+        # y_pitch = from_base_fp(point.Y,3) * 12 * 3 - 36
+        # x_pitch = from_base_fp(point.X,3) * 12 - 24
+        # y_pitch = from_base_fp(point.Y,3) * 12 - 24
+        x_pitch = from_base_fp(point.X,3) * 12 * 5 - 24
+        y_pitch = from_base_fp(point.Y,3) * 12 * 5 - 24
+        # x_pitch = from_base_fp(point.X,3) * 12 * 3
+        # y_pitch = from_base_fp(point.Y,3) * 12 * 3
+        # x_pitch = from_base_fp(point.X,3) * 12 * 2
+        # y_pitch = from_base_fp(point.Y,3) * 12 * 2
         # sinewave.set_pitch(x * 2)
         # sinewave.set_pitch(x * 0.1)
         # sinewave.set_pitch(x)
         # sinewave.set_pitch(y)
         # sinewave.play()
 
-        sinewave[0].set_pitch(x)
+        # sinewave[0].set_pitch(x * .125)
+        # sinewave[0].set_pitch(x)
+        sinewave[0].set_pitch(x_pitch)
         sinewave[0].play()
 
-        sinewave[1].set_pitch(y)
+        # sinewave[1].set_pitch(y * .125) 
+        # sinewave[1].set_pitch(y) 
+        sinewave[1].set_pitch(y_pitch) 
         sinewave[1].play()
     
         i += 1
-    # t.clear()
+    # export_eps(_count)
     # t_extra.clear()
-    # export_eps()
+    # t.clear()
     return True
 
 def main():
@@ -284,6 +300,8 @@ def main():
     _extra = []         # additional (x,y) coordinates
     _X = ''             # X to calc T in Number mode
     _Y = ''             # Y to calc T in Number mode
+    _pitchrate = 1000000 # sinewave pitch change rate / second
+                        # higher number is more accurate
 
     delay = .25 / 5
     welcome = 'P E A N O for 🐍s & 👧s'
@@ -302,7 +320,7 @@ def main():
         _display = int(sys.argv[3])
         print(sys.argv[1:])
     else:    
-        _n = input('Points (3^n): ') or '1'
+        _n = input('Points (3^n): ') or '*'
         _precision = int(input('Precision: ') or '4')            
         _display = int(input('Display: ') or '400')
         if _n == '+':
@@ -319,9 +337,8 @@ def main():
     # as it has support for channels and pip version does not
     # see https://github.com/daviddavini/pysinewave
 
-    # sinewave = SineWave(pitch = 12, pitch_per_second = 1000, channels = 2, channel_side = "r")
-    left = SineWave(pitch = 12, pitch_per_second = 1000, channels = 2, channel_side = "l")
-    right = SineWave(pitch = 12, pitch_per_second = 1000, channels = 2, channel_side = "r")
+    left = SineWave(pitch = 12, pitch_per_second = _pitchrate, channels = 2, channel_side = "l")
+    right = SineWave(pitch = 12, pitch_per_second = _pitchrate, channels = 2, channel_side = "r")
     sinewave = (left, right)
 
     if _n == '*' or _n == '+':

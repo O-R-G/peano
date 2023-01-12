@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# make sprite sheet from out/*.eps
+# convert .eps to .png 
+# combine --> sprite.png
+# set columns and rows below
+
+cd out
+rm *.png
+
+for file in *.eps
+do
+    filename=$(basename "$file")
+    filename=${filename%.*}
+    convert $file $filename.png
+done
+
+montage -background transparent -geometry +3+3 *.png sprite.png
+# montage -background transparent *.png sprite.png
+
+open sprite.png
+
+exit
