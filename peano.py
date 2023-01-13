@@ -195,12 +195,16 @@ def init_display(_display, title):
     # turtle.listen()
     return True
 
-def export_eps(_count):
+def export_eps_numbered(_count):
     screen = turtle.getscreen()
     screen.getcanvas().postscript(file='out/peano-' + str(_count) + '.eps')
     return True
 
 def draw_points(points, _display, previous, _count, points_extra, sinewave):
+    export_eps = True                  # export sequenced .eps 
+    point_previous = Point('0')         # init
+    i = 0                               # counter
+
     # turtle.tracer(3**(_count-1),0)    # close but not quite working correctly
     t = turtle.Pen()
     t.speed(0)
@@ -208,34 +212,34 @@ def draw_points(points, _display, previous, _count, points_extra, sinewave):
     # t.speed(5)
     t.hideturtle()
     t.pendown()
-    t_extra = turtle.Pen()
-    t_extra.speed(0)
-    t_extra.hideturtle()
-    t_extra.pencolor(0,0,1)
-    t_extra.penup()
-    if previous:
-        t_previous = turtle.Pen()
-        t_previous.hideturtle()
-        t_previous.pencolor(1,1,1)
-        t_previous.pensize(4)
-        t_previous.speed(0)
-        t_previous.pendown()
-        t.goto(0,0)
-        j = 1
-    i = 0
-    point_previous = Point('0')
-    for point_extra in points_extra:
-        X = from_base_fp(point_extra.X,3) * _display
-        Y = from_base_fp(point_extra.Y,3) * _display
-        t_extra.goto(X, Y)
-        t_extra.dot()
-    for point in points:
+    if not export_eps:
+        t_extra = turtle.Pen()
+        t_extra.speed(0)
+        t_extra.hideturtle()
+        t_extra.pencolor(0,0,1)
+        t_extra.penup()
         if previous:
-            if i % 3 == 0 and j < len(previous):
-                x_previous = from_base_fp(previous[j].X,3) * _display
-                y_previous = from_base_fp(previous[j].Y,3) * _display
-                t_previous.goto(x_previous,y_previous)
-                j += 1
+            t_previous = turtle.Pen()
+            t_previous.hideturtle()
+            t_previous.pencolor(1,1,1)
+            t_previous.pensize(4)
+            t_previous.speed(0)
+            t_previous.pendown()
+            t.goto(0,0)
+            j = 1
+        for point_extra in points_extra:
+            X = from_base_fp(point_extra.X,3) * _display
+            Y = from_base_fp(point_extra.Y,3) * _display
+            t_extra.goto(X, Y)
+            t_extra.dot()
+    for point in points:
+        if not export_eps:
+            if previous:
+                if i % 3 == 0 and j < len(previous):
+                    x_previous = from_base_fp(previous[j].X,3) * _display
+                    y_previous = from_base_fp(previous[j].Y,3) * _display
+                    t_previous.goto(x_previous,y_previous)
+                    j += 1
         x = from_base_fp(point.X,3) * _display
         y = from_base_fp(point.Y,3) * _display
         for point_extra in points_extra:
@@ -279,9 +283,11 @@ def draw_points(points, _display, previous, _count, points_extra, sinewave):
         sinewave[1].play()
     
         i += 1
-    # export_eps(_count)
+        
+    if export_eps:
+        export_eps_numbered(_count)
+        t.clear()
     # t_extra.clear()
-    # t.clear()
     return True
 
 def main():
