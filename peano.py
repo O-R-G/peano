@@ -5,6 +5,7 @@ import sys
 import random
 import math
 import turtle 
+import rtmidi
 
 class Point:
     # paired (X,Y) coodinate developed from T
@@ -155,6 +156,7 @@ def generate_points(_n, _points, _precision):
     for point in points:
         # os.system('clear')
         print(display.format(point.T, point.X, point.Y))
+        # print(point.X)
         # print(display_convert.format(point.T, point.X, point.Y, from_base_fp(point.X,3), from_base_fp(point.Y,3)))
     print('')
     return points
@@ -179,29 +181,72 @@ def generate_numbers(_X, _Y):
     _proceed = input('Proceed? ') or 'y' 
     return numbers
 
-def init_display(_display, title):
-    turtle.setup(_display + 4, _display + 8)  
+def init_display(_display, title, _screen):
+    turtle.setup(_display + 4, _display + 8, _screen[0], _screen[1])  
     turtle.setworldcoordinates(0, 0, _display, _display)
     turtle.title(title)
-    # turtle.tracer(2,0)      # speedup, draw every 2 frames
-    # turtle.tracer(3,0)    # speedup, draw every 3 frames
-    # turtle.tracer(9,0)    # speedup, draw every 9 frames
-    # turtle.tracer(81,0)    # speedup, draw every 9 frames
-    # turtle.tracer(243,0)    # speedup, draw every 9 frames
-    # turtle.tracer(0,0)    # speedup, draw every 9 frames
-    # turtle.tracer(10,0)    # speedup, draw every 9 frames
-    # turtle.tracer(20,0)    # speedup, draw every 9 frames
-    # turtle.onkey(export_eps, "Down")
-    # turtle.listen()
     return True
+
+def init_midi(port):
+    midiout = rtmidi.MidiOut()
+    available_ports = midiout.get_ports()
+    if available_ports:
+        midiout.open_port(0)
+    else:
+        midiout.open_virtual_port("virtual port")
+        # print("Error -- no MIDI port available")
+    return midiout
+
+def stop_midi(midiout):
+    midiout.close_port()
+    del midiout
+
+def init_midinotes(points, velocity):
+    # midinotes is a dictionary for looking up notes in c major scale
+    # build midinotes
+    return midinotes
+
+def generate_notes(_n, _precision, _points, _shift):
+    middle_c = 60
+    notes = {}
+    # i = 0
+
+    # in process!
+    # need to match these indices to the actual X or Y values
+    # pad with 2's if last digit is 2, otherwise pad with 0's
+    # ** fix **
+
+    # IN A HACK, FOR NOW THIS WORKS IF _PRECISON = _N
+
+    indices = []
+    for n in range(_points):
+        index = to_base(n, 3)
+        index = index.rjust(_n, '0')
+        # index = index.ljust(_n * _precision, '0')   # ** fix **
+        index = index.ljust(_n, '0')   # ** fix **
+        indices.append(index)
+
+        note = middle_c + n
+        notes[index] = note
+
+    # debug
+    for index in indices:
+        print(index)
+    for keys,values in notes.items():
+        print(keys)
+        print(values)
+        print('')
+    # sleep(100)
+
+    return notes
 
 def export_eps_numbered(_count):
     screen = turtle.getscreen()
     screen.getcanvas().postscript(file='out/peano-' + str(_count) + '.eps')
     return True
 
-def draw_points(points, _display, previous, _count, points_extra, sinewave):
-    export_eps = True                  # export sequenced .eps 
+def draw_points(points, _display, previous, _count, points_extra, sinewave, midiout, notes):
+    export_eps = False                  # export sequenced .eps 
     point_previous = Point('0')         # init
     i = 0                               # counter
 
@@ -209,6 +254,7 @@ def draw_points(points, _display, previous, _count, points_extra, sinewave):
     t = turtle.Pen()
     t.speed(0)
     # t.speed(1)
+    # t.speed(2)
     # t.speed(5)
     t.hideturtle()
     t.pendown()
@@ -232,6 +278,7 @@ def draw_points(points, _display, previous, _count, points_extra, sinewave):
             Y = from_base_fp(point_extra.Y,3) * _display
             t_extra.goto(X, Y)
             t_extra.dot()
+
     for point in points:
         if not export_eps:
             if previous:
@@ -250,38 +297,34 @@ def draw_points(points, _display, previous, _count, points_extra, sinewave):
                 t.pencolor(1,0,0)
                 t.dot()
         t.goto(x,y)
+        t.dot()
         t.pencolor(0,0,0)
         display = 'T -------> {})'
         os.system('clear')
         print(display.format(from_base_fp(point.T, 3)))
         point_previous = point
 
-        # x_pitch = from_base_fp(point.X,3) * 12 * 3 - 36
-        # y_pitch = from_base_fp(point.Y,3) * 12 * 3 - 36
-        # x_pitch = from_base_fp(point.X,3) * 12 - 24
-        # y_pitch = from_base_fp(point.Y,3) * 12 - 24
-        x_pitch = from_base_fp(point.X,3) * 12 * 5 - 24
-        y_pitch = from_base_fp(point.Y,3) * 12 * 5 - 24
-        # x_pitch = from_base_fp(point.X,3) * 12 * 3
-        # y_pitch = from_base_fp(point.Y,3) * 12 * 3
-        # x_pitch = from_base_fp(point.X,3) * 12 * 2
-        # y_pitch = from_base_fp(point.Y,3) * 12 * 2
-        # sinewave.set_pitch(x * 2)
-        # sinewave.set_pitch(x * 0.1)
-        # sinewave.set_pitch(x)
-        # sinewave.set_pitch(y)
-        # sinewave.play()
+        # note_on = [0x90, 60, 112] # channel 1, middle C, velocity 112
+        # note_off = [0x80, 60, 0]
+        note_on_X = [0x90,notes[point.X], 112] 
+        note_off_X = [0x80, notes[point.X], 0]
+        note_on_Y = [0x90,notes[point.Y], 112] 
+        note_off_Y = [0x80, notes[point.Y], 0]
+        midiout.send_message(note_on_X)
+        midiout.send_message(note_on_Y)
+        sleep(0.5)
+        midiout.send_message(note_off_X)
+        midiout.send_message(note_off_Y)
+        sleep(0.1)
 
-        # sinewave[0].set_pitch(x * .125)
-        # sinewave[0].set_pitch(x)
-        sinewave[0].set_pitch(x_pitch)
-        sinewave[0].play()
+        if not midiout:
+            x_pitch = from_base_fp(point.X,3) * 12 * 10 - 48
+            y_pitch = from_base_fp(point.Y,3) * 12 * 10 - 48
+            sinewave[0].set_pitch(x_pitch)
+            sinewave[1].set_pitch(y_pitch) 
+            sinewave[0].play()
+            sinewave[1].play()
 
-        # sinewave[1].set_pitch(y * .125) 
-        # sinewave[1].set_pitch(y) 
-        sinewave[1].set_pitch(y_pitch) 
-        sinewave[1].play()
-    
         i += 1
         
     if export_eps:
@@ -308,6 +351,9 @@ def main():
     _Y = ''             # Y to calc T in Number mode
     _pitchrate = 1000000 # sinewave pitch change rate / second
                         # higher number is more accurate
+    _screen_x = 0           # window offset
+    _screen_y = 0       # window offset  
+    # midiout           # assigned below
 
     delay = .25 / 5
     welcome = 'P E A N O for 🐍s & 👧s'
@@ -324,6 +370,8 @@ def main():
         _n = sys.argv[1] 
         _precision = int(sys.argv[2])
         _display = int(sys.argv[3])
+        _screen_x = int(sys.argv[4])
+        _screen_y = int(sys.argv[5])
         print(sys.argv[1:])
     else:    
         _n = input('Points (3^n): ') or '*'
@@ -336,7 +384,10 @@ def main():
                 _Y = input('Y : ') or '100000'                    
                 if _X != '.' and _Y != '.':
                     _extra.append({'x':_X, 'y':_Y})
-    display = init_display(_display, welcome)
+    _screen = (_screen_x, _screen_y)
+    display = init_display(_display, welcome, _screen)
+
+    # use pysinewave
 
     # create sinewaves (panned to left and right)
     # using pysinewave module local version included in this repository
@@ -346,6 +397,7 @@ def main():
     left = SineWave(pitch = 12, pitch_per_second = _pitchrate, channels = 2, channel_side = "l")
     right = SineWave(pitch = 12, pitch_per_second = _pitchrate, channels = 2, channel_side = "r")
     sinewave = (left, right)
+
 
     if _n == '*' or _n == '+':
         # draw extra points
@@ -359,19 +411,36 @@ def main():
         for n in range(1000):
             _points = 3 ** n            
             points = generate_points(n, _points, _precision)
+
+            # use python-rtmidi
+            midiout = init_midi(0)
+            _shift = 0
+            notes = generate_notes(int(n), _precision, _points, _shift)
+
             if _precision == 0:
                 if _count % 2 == 0:
-                    draw = draw_points(points, _display, previous, _count, points_extra, sinewave)
+                    draw = draw_points(points, _display, previous, _count, points_extra, sinewave, midiout, notes)
             else:    
-                draw = draw_points(points, _display, previous, _count, points_extra, sinewave)
+                draw = draw_points(points, _display, previous, _count, points_extra, sinewave, midiout, notes)
             previous = points
             _count += 1
     else:
         _points =  3 ** int(_n)
         points = generate_points(int(_n), _points, _precision)
         points_extra = []
-        draw = draw_points(points, _display, False, _count, points_extra, sinewave)
+
+        # for point in points:
+        #    print(point.X)
+        # exit()
+
+        # use python-rtmidi
+        midiout = init_midi(0)
+        _shift = 0
+        notes = generate_notes(int(_n), _precision, _points, _shift)
+
+        draw = draw_points(points, _display, False, _count, points_extra, sinewave, midiout, notes)
         turtle.done()
     exit()
 
+    stop_midi()
 main()

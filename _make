@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# init
+
+cd /Users/reinfurt/Documents/Softwares/peano
+
+ls
+
+python peano.py 1 4 400 10 10 &
+python peano.py 2 4 400 10 410 &
+python peano.py 3 4 400 410 10 &
+python peano.py 4 4 400 410 410 &
+python peano.py 5 4 400 810 10 &
+python peano.py 6 4 400 810 410
+
+exit
