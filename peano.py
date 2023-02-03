@@ -147,17 +147,16 @@ def generate_points(_n, _points, _precision):
     for n in range(_points):
         T = to_base(n, 3)
         T = T.rjust(_n, '0')
-        T = T.ljust(_n * _precision, '0')   # ** fix **
+        T = T.ljust(_n * _precision, '0')   
+        if len(T) % 2 != 0:             # T must always be even
+            T = T.ljust(len(T)+1, '0')  # to split into X and Y
         point = Point(T);
         points.append(point)
     print('')
     display = '.{} -------> (.{} , .{})'
     display_convert = '.{} -------> (.{} , .{})    ({:.' + str(_precision) + 'f} , {:.' + str(_precision) + 'f})'
     for point in points:
-        # os.system('clear')
         print(display.format(point.T, point.X, point.Y))
-        # print(point.X)
-        # print(display_convert.format(point.T, point.X, point.Y, from_base_fp(point.X,3), from_base_fp(point.Y,3)))
     print('')
     return points
 
@@ -188,18 +187,18 @@ def init_display(_display, title, _screen):
     return True
 
 def init_midi(port):
-    midiout = rtmidi.MidiOut()
-    available_ports = midiout.get_ports()
+    midi = rtmidi.MidiOut()
+    available_ports = midi.get_ports()
     if available_ports:
-        midiout.open_port(0)
+        midi.open_port(0)
     else:
-        midiout.open_virtual_port("virtual port")
+        midi.open_virtual_port("virtual port")
         # print("Error -- no MIDI port available")
-    return midiout
+    return midi
 
-def stop_midi(midiout):
-    midiout.close_port()
-    del midiout
+def stop_midi(midi):
+    midi.close_port()
+    del midi
 
 def init_midinotes(points, velocity):
     # midinotes is a dictionary for looking up notes in c major scale
@@ -245,7 +244,7 @@ def export_eps_numbered(_count):
     screen.getcanvas().postscript(file='out/peano-' + str(_count) + '.eps')
     return True
 
-def draw_points(points, _display, previous, _count, points_extra, sinewave, midiout, notes):
+def draw_points(points, _display, previous, _count, points_extra, sinewave, midi, notes):
     export_eps = False                  # export sequenced .eps 
     point_previous = Point('0')         # init
     i = 0                               # counter
@@ -299,25 +298,25 @@ def draw_points(points, _display, previous, _count, points_extra, sinewave, midi
         t.goto(x,y)
         t.dot()
         t.pencolor(0,0,0)
-        display = 'T -------> {})'
-        os.system('clear')
-        print(display.format(from_base_fp(point.T, 3)))
+        # display = 'T -------> {})'
+        # os.system('clear')
+        # print(display.format(from_base_fp(point.T, 3)))
         point_previous = point
 
-        # note_on = [0x90, 60, 112] # channel 1, middle C, velocity 112
-        # note_off = [0x80, 60, 0]
-        note_on_X = [0x90,notes[point.X], 112] 
-        note_off_X = [0x80, notes[point.X], 0]
-        note_on_Y = [0x90,notes[point.Y], 112] 
-        note_off_Y = [0x80, notes[point.Y], 0]
-        midiout.send_message(note_on_X)
-        midiout.send_message(note_on_Y)
-        sleep(0.5)
-        midiout.send_message(note_off_X)
-        midiout.send_message(note_off_Y)
-        sleep(0.1)
-
-        if not midiout:
+        if midi:
+            # note_on = [0x90, 60, 112] # channel 1, middle C, velocity 112
+            # note_off = [0x80, 60, 0]
+            note_on_X = [0x90,notes[point.X], 112] 
+            note_off_X = [0x80, notes[point.X], 0]
+            note_on_Y = [0x90,notes[point.Y], 112] 
+            note_off_Y = [0x80, notes[point.Y], 0]
+            midi.send_message(note_on_X)
+            midi.send_message(note_on_Y)
+            sleep(0.5)
+            midi.send_message(note_off_X)
+            midi.send_message(note_off_Y)
+            sleep(0.1)
+        else:
             x_pitch = from_base_fp(point.X,3) * 12 * 10 - 48
             y_pitch = from_base_fp(point.Y,3) * 12 * 10 - 48
             sinewave[0].set_pitch(x_pitch)
@@ -351,9 +350,9 @@ def main():
     _Y = ''             # Y to calc T in Number mode
     _pitchrate = 1000000 # sinewave pitch change rate / second
                         # higher number is more accurate
-    _screen_x = 0           # window offset
+    _screen_x = 0       # window offset
     _screen_y = 0       # window offset  
-    # midiout           # assigned below
+    midi = None         # use midi?
 
     delay = .25 / 5
     welcome = 'P E A N O for 🐍s & 👧s'
@@ -398,7 +397,6 @@ def main():
     right = SineWave(pitch = 12, pitch_per_second = _pitchrate, channels = 2, channel_side = "r")
     sinewave = (left, right)
 
-
     if _n == '*' or _n == '+':
         # draw extra points
         points_extra = []
@@ -413,15 +411,16 @@ def main():
             points = generate_points(n, _points, _precision)
 
             # use python-rtmidi
-            midiout = init_midi(0)
+            # default is use pysinewave
+            # midi = init_midi(0)
             _shift = 0
             notes = generate_notes(int(n), _precision, _points, _shift)
 
             if _precision == 0:
                 if _count % 2 == 0:
-                    draw = draw_points(points, _display, previous, _count, points_extra, sinewave, midiout, notes)
-            else:    
-                draw = draw_points(points, _display, previous, _count, points_extra, sinewave, midiout, notes)
+                    draw = draw_points(points, _display, previous, _count, points_extra, sinewave, midi, notes)
+            else:
+                draw = draw_points(points, _display, previous, _count, points_extra, sinewave, midi, notes)
             previous = points
             _count += 1
     else:
@@ -434,13 +433,14 @@ def main():
         # exit()
 
         # use python-rtmidi
-        midiout = init_midi(0)
+        # default is use pysinewave
+        # midi = init_midi(0)
         _shift = 0
         notes = generate_notes(int(_n), _precision, _points, _shift)
 
-        draw = draw_points(points, _display, False, _count, points_extra, sinewave, midiout, notes)
+        draw = draw_points(points, _display, False, _count, points_extra, sinewave, midi, notes)
         turtle.done()
+    stop_midi()
     exit()
 
-    stop_midi()
 main()
