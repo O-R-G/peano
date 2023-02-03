@@ -148,8 +148,8 @@ def generate_points(_n, _points, _precision):
         T = to_base(n, 3)
         T = T.rjust(_n, '0')
         T = T.ljust(_n * _precision, '0')   
-        if len(T) % 2 != 0:             # T must always be even
-            T = T.ljust(len(T)+1, '0')  # to split into X and Y
+        if len(T) % 2 != 0:             # T length must always be even
+            T = T.ljust(len(T)+1, '0')  # to split into X and Y points
         point = Point(T);
         points.append(point)
     print('')
