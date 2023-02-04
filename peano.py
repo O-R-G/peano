@@ -200,37 +200,36 @@ def stop_midi(midi):
     midi.close_port()
     del midi
 
-def init_midinotes(points, velocity):
-    # midinotes is a dictionary for looking up notes in c major scale
-    # build midinotes
-    return midinotes
+def init_notes(start_note, octaves):
+    # build midi notes in a C major scale over octaves  
+    # middle_c = 60, low C = 48 ... (1 octave = 12)
+    # notes[] is used as a lookup for point.X and point.Y
+    # when triggering midi
+
+    notes = []
+    note = start_note
+    notes.append(note)
+    for _ in range(octaves):
+        for n in range(7):
+            if n == 3 or n == 6:
+                note += 1
+            else:
+                note += 2
+            notes.append(note)
+    # debug
+    print(notes)
+    return notes
 
 def generate_notes(_n, _precision, _points, points, notes_shift):
+    # this may be redundant depending on build_notes() logic
     middle_c = 60
     notes = {}
     # i = 0
 
-    # in process!
-    # need to match these indices to the actual X or Y values
-    # pad with 2's if last digit is 2, otherwise pad with 0's
-    # ** fix **
-
-    # better?
     # get the actual Point.X and Point.Y values as used
     # and then sort these to use as the indices for notes dictionary
 
-    # IN A HACK, FOR NOW THIS WORKS IF _PRECISON = _N
-
     indices = []
-    # for n in range(_points):
-    #    index = to_base(n, 3)
-    #    index = index.rjust(_n, '0')
-    #    # index = index.ljust(_n * _precision, '0')   # ** fix **
-    #    index = index.ljust(_n, '0')   # ** fix **
-    #    indices.append(index)
-    #    note = middle_c + n
-    #    notes[index] = note
-
     for point in points:
         index = point.X
         indices.append(index)
@@ -317,9 +316,8 @@ def draw_points(points, _display, previous, _count, points_extra, sinewave, midi
         # print(display.format(from_base_fp(point.T, 3)))
         point_previous = point
 
+        """
         if midi:
-            # note_on = [0x90, 60, 112] # channel 1, middle C, velocity 112
-            # note_off = [0x80, 60, 0]
             note_on_X = [0x90,notes[point.X], 112] 
             note_off_X = [0x80, notes[point.X], 0]
             note_on_Y = [0x90,notes[point.Y], 112] 
@@ -330,6 +328,41 @@ def draw_points(points, _display, previous, _count, points_extra, sinewave, midi
             midi.send_message(note_off_X)
             midi.send_message(note_off_Y)
             sleep(0.1)
+        if midi:
+            # debug 
+            # play scale 
+            for note in notes:
+                note_on = [0x90, note, 112] 
+                note_off = [0x80, note, 0]
+                midi.send_message(note_on)
+                sleep(0.025)
+                midi.send_message(note_off)
+                sleep(0.025)
+        """
+
+
+
+        # index falling out of range in notes
+        # which is to do with 8 notes in octave
+        # but for example 9 points in peano curve iteration 2
+        # hmm ...
+
+        if midi:
+            x_note = round(from_base_fp(point.X,3) * len(notes))
+            y_note = round(from_base_fp(point.Y,3) * len(notes))
+            # print(x_note, y_note)
+            print(x_note, notes[x_note])
+            x_note_on = [0x90, notes[x_note], 112] 
+            x_note_off = [0x80, notes[x_note], 0]
+            y_note_on = [0x90, notes[y_note], 112] 
+            y_note_off = [0x80, notes[y_note], 0]
+            midi.send_message(x_note_on)
+            midi.send_message(y_note_on)
+            sleep(0.25)
+            midi.send_message(x_note_off)
+            midi.send_message(y_note_off)
+            sleep(0.1)
+
         else:
             x_pitch = from_base_fp(point.X,3) * 12 * 10 - 48
             y_pitch = from_base_fp(point.Y,3) * 12 * 10 - 48
@@ -337,7 +370,6 @@ def draw_points(points, _display, previous, _count, points_extra, sinewave, midi
             sinewave[1].set_pitch(y_pitch) 
             sinewave[0].play()
             sinewave[1].play()
-
         i += 1
         
     if export_eps:
@@ -441,13 +473,10 @@ def main():
         _points =  3 ** int(_n)
         points = generate_points(int(_n), _points, _precision)
         points_extra = []
-
-        # debug
-        # exit()
-
         if midi:
-            notes_shift = 0
-            notes = generate_notes(int(_n), _precision, _points, points, notes_shift)
+            # notes_shift = 0
+            # notes = generate_notes(int(_n), _precision, _points, points, notes_shift)
+            notes = init_notes(60, 1)
         draw = draw_points(points, _display, False, _count, points_extra, sinewave, midi, notes)
         turtle.done()
     stop_midi()
