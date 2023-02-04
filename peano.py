@@ -346,22 +346,29 @@ def draw_points(points, _display, previous, _count, points_extra, sinewave, midi
         # which is to do with 8 notes in octave
         # but for example 9 points in peano curve iteration 2
         # hmm ...
+        # for now trying int() to basically floor value
+        # how diff from math.floor()
 
         if midi:
-            x_note = round(from_base_fp(point.X,3) * len(notes))
-            y_note = round(from_base_fp(point.Y,3) * len(notes))
+            # x_note = round(from_base_fp(point.X,3) * len(notes))
+            # y_note = round(from_base_fp(point.Y,3) * len(notes))
+            x_note = int(from_base_fp(point.X,3) * len(notes))
+            y_note = int(from_base_fp(point.Y,3) * len(notes))
             # print(x_note, y_note)
-            print(x_note, notes[x_note])
+            # print(x_note, notes[x_note])
+            # print(y_note, notes[y_note])
+            print(y_note)
+            print(notes[y_note])
             x_note_on = [0x90, notes[x_note], 112] 
             x_note_off = [0x80, notes[x_note], 0]
             y_note_on = [0x90, notes[y_note], 112] 
             y_note_off = [0x80, notes[y_note], 0]
             midi.send_message(x_note_on)
             midi.send_message(y_note_on)
-            sleep(0.25)
+            sleep(0.05)
             midi.send_message(x_note_off)
             midi.send_message(y_note_off)
-            sleep(0.1)
+            sleep(0.025)
 
         else:
             x_pitch = from_base_fp(point.X,3) * 12 * 10 - 48
@@ -476,7 +483,7 @@ def main():
         if midi:
             # notes_shift = 0
             # notes = generate_notes(int(_n), _precision, _points, points, notes_shift)
-            notes = init_notes(60, 1)
+            notes = init_notes(60, 2)
         draw = draw_points(points, _display, False, _count, points_extra, sinewave, midi, notes)
         turtle.done()
     stop_midi()
