@@ -205,7 +205,7 @@ def init_midinotes(points, velocity):
     # build midinotes
     return midinotes
 
-def generate_notes(_n, _precision, _points, _shift):
+def generate_notes(_n, _precision, _points, points, notes_shift):
     middle_c = 60
     notes = {}
     # i = 0
@@ -215,28 +215,42 @@ def generate_notes(_n, _precision, _points, _shift):
     # pad with 2's if last digit is 2, otherwise pad with 0's
     # ** fix **
 
+    # better?
+    # get the actual Point.X and Point.Y values as used
+    # and then sort these to use as the indices for notes dictionary
+
     # IN A HACK, FOR NOW THIS WORKS IF _PRECISON = _N
 
     indices = []
-    for n in range(_points):
-        index = to_base(n, 3)
-        index = index.rjust(_n, '0')
-        # index = index.ljust(_n * _precision, '0')   # ** fix **
-        index = index.ljust(_n, '0')   # ** fix **
-        indices.append(index)
+    # for n in range(_points):
+    #    index = to_base(n, 3)
+    #    index = index.rjust(_n, '0')
+    #    # index = index.ljust(_n * _precision, '0')   # ** fix **
+    #    index = index.ljust(_n, '0')   # ** fix **
+    #    indices.append(index)
+    #    note = middle_c + n
+    #    notes[index] = note
 
+    for point in points:
+        index = point.X
+        indices.append(index)
+    indices.sort()
+
+    n = 0
+    for index in indices:
         note = middle_c + n
         notes[index] = note
+        n += 1
 
     # debug
     for index in indices:
         print(index)
-    for keys,values in notes.items():
-        print(keys)
-        print(values)
-        print('')
+    display = '.{} -------> {}'
+    for key,value in notes.items():
+        print(display.format(key, value))
     # sleep(100)
 
+    # exit()
     return notes
 
 def export_eps_numbered(_count):
@@ -254,7 +268,7 @@ def draw_points(points, _display, previous, _count, points_extra, sinewave, midi
     t.speed(0)
     # t.speed(1)
     # t.speed(2)
-    # t.speed(5)
+    # t. finspeed(5)
     t.hideturtle()
     t.pendown()
     if not export_eps:
@@ -397,6 +411,10 @@ def main():
     right = SineWave(pitch = 12, pitch_per_second = _pitchrate, channels = 2, channel_side = "r")
     sinewave = (left, right)
 
+    # use python-rtmidi
+
+    midi = init_midi(0)
+
     if _n == '*' or _n == '+':
         # draw extra points
         points_extra = []
@@ -409,13 +427,9 @@ def main():
         for n in range(1000):
             _points = 3 ** n            
             points = generate_points(n, _points, _precision)
-
-            # use python-rtmidi
-            # default is use pysinewave
-            # midi = init_midi(0)
-            _shift = 0
-            notes = generate_notes(int(n), _precision, _points, _shift)
-
+            if midi:
+                notes_shift = 0
+                notes = generate_notes(int(n), _precision, _points, points, notes_shift)
             if _precision == 0:
                 if _count % 2 == 0:
                     draw = draw_points(points, _display, previous, _count, points_extra, sinewave, midi, notes)
@@ -428,16 +442,12 @@ def main():
         points = generate_points(int(_n), _points, _precision)
         points_extra = []
 
-        # for point in points:
-        #    print(point.X)
+        # debug
         # exit()
 
-        # use python-rtmidi
-        # default is use pysinewave
-        # midi = init_midi(0)
-        _shift = 0
-        notes = generate_notes(int(_n), _precision, _points, _shift)
-
+        if midi:
+            notes_shift = 0
+            notes = generate_notes(int(_n), _precision, _points, points, notes_shift)
         draw = draw_points(points, _display, False, _count, points_extra, sinewave, midi, notes)
         turtle.done()
     stop_midi()
