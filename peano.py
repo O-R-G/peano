@@ -2,6 +2,7 @@ import os
 from time import sleep
 from pysinewave import SineWave
 import sys
+import argparse
 import random
 import math
 import turtle 
@@ -94,6 +95,7 @@ class Number:
         return T
 
 class MidiOutWrapper:
+    # convenience wrapper for using rtmidi, channels 
     # see https://github.com/SpotlightKid/python-rtmidi/issues/38
 
     def __init__(self, midi, ch=1):
@@ -213,7 +215,7 @@ def stop_midi(midi):
     midi.close_port()
     del midi
 
-def init_notes(start_note, octaves):
+def init_midi_notes(start_note, octaves):
     # build midi notes in a C major scale over octaves  
     # middle_c = 60, low C = 48 ... (1 octave = 12)
     # can start from any other note to switch key
@@ -239,17 +241,14 @@ def export_eps_numbered(_count):
     screen.getcanvas().postscript(file='out/peano-' + str(_count) + '.eps')
     return True
 
-def draw_points(points, _display, previous, _count, points_extra, sinewave, midi, notes):
+def draw_points(points, _display, previous, _count, points_extra, _speed, sinewave, midi, notes):
     export_eps = False                  # export sequenced .eps 
     point_previous = Point('0')         # init
     i = 0                               # counter
 
     # turtle.tracer(3**(_count-1),0)    # close but not quite working correctly
     t = turtle.Pen()
-    t.speed(0)
-    # t.speed(1)
-    # t.speed(2)
-    # t.speed(5)
+    t.speed(_speed)
     t.hideturtle()
     t.pendown()
     if not export_eps:
@@ -301,7 +300,8 @@ def draw_points(points, _display, previous, _count, points_extra, sinewave, midi
         # MIDI messages 
         # note_on: 0x90, note_off: 0x80, control_change: 0xB0 
         # channel_change: 0x80 | channelnumber
-
+        
+        # move to contained function?
 
         if midi:
             x_note = int(from_base_fp(point.X,3) * len(notes))
@@ -311,8 +311,8 @@ def draw_points(points, _display, previous, _count, points_extra, sinewave, midi
             sleep(0.125)
             midi.channel_message(0x80, notes[x_note], 0, ch=1)
             midi.channel_message(0x80, notes[y_note], 0, ch=2)
-            # sleep(0.0125)
-        else:
+            sleep(0.0125)
+        elif sinewave:
             x_pitch = from_base_fp(point.X,3) * 12 * 10 - 48
             y_pitch = from_base_fp(point.Y,3) * 12 * 10 - 48
             sinewave[0].set_pitch(x_pitch)
@@ -343,14 +343,28 @@ def main():
     _extra = []         # additional (x,y) coordinates
     _X = ''             # X to calc T in Number mode
     _Y = ''             # Y to calc T in Number mode
-    _pitchrate = 1000000 # sinewave pitch change rate / second
-                        # higher number is more accurate
     _screen_x = 0       # window offset
-    _screen_y = 0       # window offset  
-    midi = None         # use midi?
+    _screen_y = 0       # window offset
+    _speed = 0          # 0 (fast as possible) or 1 (slow) - 9 (fast)
+    _sound = 'none'     # 'none', 'sinewave', 'midi'  
 
-    delay = .25 / 5
     welcome = 'P E A N O for 🐍s & 👧s'
+    delay = .25 / 5     # opening sequence
+    sinewave = None     # init using pysinewave
+    midi = None         # init using rtmidi
+    notes = None        # init midi notes
+
+    # https://docs.python.org/3/howto/argparse.html
+    parser = argparse.ArgumentParser()
+    parser.add_argument('_n', help='number of points as power of 3', type=int)
+    parser.add_argument('_precision', help='length of T, determines accuracy of (X,Y) values', type=int)
+    parser.add_argument('_display', help='window size in px', type=int)
+    parser.add_argument('--screen_x', help='window screen X position in px', type=int)
+    parser.add_argument('--screen_y', help='window screen X position in px', type=int)
+    parser.add_argument('--speed', help='turtle drawing speed, 0 (fast as possible), 1 (slow) - 9 (fast)', type=int)
+    parser.add_argument('--sinewave', help='use rtmidi to generate midi data sent on virtual port', action='store_true')
+    parser.add_argument('--midi', help='use rtmidi to generate midi data sent on virtual port', action='store_true')
+
     os.system('clear')
     for i in range(9):
         os.system('clear')
@@ -358,15 +372,23 @@ def main():
         print('\n' + (' ' * 36) + ('. ' * (i%3)) + 'O ' + ('. ' * (2 - i%3)))
         sleep(delay)
     os.system('clear')
-    sleep(delay)   
+    sleep(delay)
 
+    args = parser.parse_args()
     if sys.argv[1:]:
-        _n = sys.argv[1] 
-        _precision = int(sys.argv[2])
-        _display = int(sys.argv[3])
-        _screen_x = int(sys.argv[4])
-        _screen_y = int(sys.argv[5])
-        print(sys.argv[1:])
+        _n = args._n        
+        _precision = args._precision
+        _display = args._display
+        if args.screen_x:
+            _screen_x = args.screen_x
+        if args.screen_y:
+            _screen_y = args.screen_y
+        if args.speed:
+            _speed = args.speed
+        if args.midi:
+            _sound = 'midi'
+        elif args.sinewave:
+            _sound = 'sinewave'
     else:    
         _n = input('Points (3^n): ') or '*'
         _precision = int(input('Precision: ') or '4')            
@@ -381,23 +403,29 @@ def main():
     _screen = (_screen_x, _screen_y)
     display = init_display(_display, welcome, _screen)
 
-    # use pysinewave
-
+    # pysinewave
     # create sinewaves (panned to left and right)
     # using pysinewave module local version included in this repository
     # as it has support for channels and pip version does not
     # see https://github.com/daviddavini/pysinewave
 
-    left = SineWave(pitch = 12, pitch_per_second = _pitchrate, channels = 2, channel_side = "l")
-    right = SineWave(pitch = 12, pitch_per_second = _pitchrate, channels = 2, channel_side = "r")
-    sinewave = (left, right)
+    # python-rtmidi
+    # https://github.com/SpotlightKid/python-rtmidi
+    # python wrapper for C library to send MIDI messages over virtual port
+    # using virtual port IAC, which is created in Audio Midi Setup
+    # using Ableton Live to receive MIDI messages
+    # MIDI is sent on channel 1 (X) and channel 2 (Y)
+    # configure Live to receive from IAC as desired
 
-    # use python-rtmidi
-
-    midiout = init_midi(0)
-    midi = MidiOutWrapper(midiout)
-    if midi:
-        notes = init_notes(48, 3)
+    if _sound == 'midi':
+        midi_port = init_midi(0)
+        midi = MidiOutWrapper(midi_port)
+        if midi:
+            notes = init_midi_notes(48, 3)
+    elif _sound == 'sinewave':
+        left = SineWave(pitch = 12, pitch_per_second = 1000000, channels = 2, channel_side = "l")
+        right = SineWave(pitch = 12, pitch_per_second = 1000000, channels = 2, channel_side = "r")
+        sinewave = (left, right)
 
     if _n == '*' or _n == '+':
         # draw extra points
@@ -414,16 +442,16 @@ def main():
             points = generate_points(n, _points, _precision)
             if _precision == 0:
                 if _count % 2 == 0:
-                    draw = draw_points(points, _display, previous, _count, points_extra, sinewave, midi, notes)
+                    draw = draw_points(points, _display, previous, _count, points_extra, _speed, sinewave, midi, notes)
             else:
-                draw = draw_points(points, _display, previous, _count, points_extra, sinewave, midi, notes)
+                draw = draw_points(points, _display, previous, _count, points_extra, _speed, sinewave, midi, notes)
             previous = points
             _count += 1
     else:
         _points =  3 ** int(_n)
         points = generate_points(int(_n), _points, _precision)
         points_extra = []
-        draw = draw_points(points, _display, False, _count, points_extra, sinewave, midi, notes)
+        draw = draw_points(points, _display, False, _count, points_extra, _speed, sinewave, midi, notes)
         turtle.done()
     stop_midi()
     exit()
