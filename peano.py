@@ -356,7 +356,7 @@ def main():
 
     # https://docs.python.org/3/howto/argparse.html
     parser = argparse.ArgumentParser()
-    parser.add_argument('_n', help='number of points as power of 3', type=int)
+    parser.add_argument('_n', help='number of points as power of 3')
     parser.add_argument('_precision', help='length of T, determines accuracy of (X,Y) values', type=int)
     parser.add_argument('_display', help='window size in px', type=int)
     parser.add_argument('--screen_x', help='window screen X position in px', type=int)
@@ -374,9 +374,9 @@ def main():
     os.system('clear')
     sleep(delay)
 
-    args = parser.parse_args()
     if sys.argv[1:]:
-        _n = args._n        
+        args = parser.parse_args()
+        _n = args._n
         _precision = args._precision
         _display = args._display
         if args.screen_x:
