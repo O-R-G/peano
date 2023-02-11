@@ -8,6 +8,30 @@ import math
 import turtle 
 import rtmidi
 
+# turtle requires tkinter
+# system tkinter is deprecated, but system will still insist on using
+# following https://stackoverflow.com/questions/72472167/deprecation-
+# warning-the-system-version-of-tk-is-deprecated-m1-mac-in-vs-code
+# brew uninstall tcl-tk
+# brew install tcl-tk
+# pyenv install 3.9.10
+
+# pysinewave
+# create sinewaves (panned to left and right)
+# using pysinewave module local version included in this repository
+# as it has support for channels and pip version does not
+# see https://github.com/daviddavini/pysinewave
+# pip install -e /path/to/pysinewave
+
+# python-rtmidi
+# https://github.com/SpotlightKid/python-rtmidi
+# python wrapper for C library to send MIDI messages over virtual port
+# using virtual port IAC, which is created in Audio Midi Setup
+# using Ableton Live to receive MIDI messages
+# MIDI is sent on channel 1 (X) and channel 2 (Y)
+# onfigure Live to receive from IAC as desired
+# pip install python-rtmidi
+
 class Point:
     # paired (X,Y) coodinate developed from T
     # using Peano's construction
@@ -402,21 +426,6 @@ def main():
                     _extra.append({'x':_X, 'y':_Y})
     _screen = (_screen_x, _screen_y)
     display = init_display(_display, welcome, _screen)
-
-    # pysinewave
-    # create sinewaves (panned to left and right)
-    # using pysinewave module local version included in this repository
-    # as it has support for channels and pip version does not
-    # see https://github.com/daviddavini/pysinewave
-
-    # python-rtmidi
-    # https://github.com/SpotlightKid/python-rtmidi
-    # python wrapper for C library to send MIDI messages over virtual port
-    # using virtual port IAC, which is created in Audio Midi Setup
-    # using Ableton Live to receive MIDI messages
-    # MIDI is sent on channel 1 (X) and channel 2 (Y)
-    # configure Live to receive from IAC as desired
-
     if _sound == 'midi':
         midi_port = init_midi(0)
         midi = MidiOutWrapper(midi_port)
