@@ -11,6 +11,6 @@ python peano.py 2 4 400 --screen_x 10 --screen_y 410 --midi &
 python peano.py 3 4 400 --screen_x 410 --screen_y 10 --midi &
 python peano.py 4 4 400 --screen_x 410 --screen_y 410 --midi &
 python peano.py 5 4 400 --screen_x 810 --screen_y 10 --midi &
-python peano.py 6 4 400 --screen_x 810 --screen_y 410
+python peano.py 6 4 400 --screen_x 810 --screen_y 410 --midi
 
 exit
