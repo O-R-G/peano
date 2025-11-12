@@ -1,5 +1,7 @@
 Draws a Peano Curve using the method described in Giuseppe Peano's paper from 1890, A space-filling curve. See [https://en.wikipedia.org/wiki/Space-filling_curve](https://en.wikipedia.org/wiki/Space-filling_curve). 
 
+--
+
 Clone and install dependencies:
 
 1. Install Python v3.11.0 with tkinter support. Turtle requires tkinter but system tkinter is deprecated and fails, but system insists on using it anyway, so reinstall current Python version with tkinter support.
