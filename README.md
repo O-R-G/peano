@@ -1,6 +1,6 @@
 Draws a Peano Curve using the method described in Giuseppe Peano's paper from 1890, A space-filling curve. See [https://en.wikipedia.org/wiki/Space-filling_curve](https://en.wikipedia.org/wiki/Space-filling_curve). 
 
-*
+\*
 
 Clone and install dependencies:
 
